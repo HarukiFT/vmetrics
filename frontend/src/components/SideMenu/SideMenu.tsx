@@ -35,10 +35,13 @@ const ProfileFooter = () => {
     )
 }
 
+const sideMenuWidth = 200
+
 export default () => {
     return (
         <Drawer sx={{
             '& .MuiDrawer-paper': {
+                width: sideMenuWidth,
                 py: 2
             }
         }} variant="permanent">
