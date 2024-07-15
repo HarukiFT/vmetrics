@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UserDocument } from './schemas/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
+import { getSalt, hash } from 'bcryptjs';
 
 @Injectable()
 export class UsersService {
@@ -10,13 +11,26 @@ export class UsersService {
 
     async isUserExist(username: string) {
         const userDocument = await this.userModel.findOne({
-            username: username
+            username
         }).exec()
 
         return (userDocument !== null)
     }
 
+    async getUserByUsername(username: string) {
+        const userDocument = await this.userModel.findOne({
+            username
+        }).exec()
+
+        return userDocument
+    }
+
     async createUser(createUserDto: CreateUserDto) {
-        return await new this.userModel(createUserDto).save()
+        const password = await hash(createUserDto.password, 10)
+
+        return await new this.userModel({
+            username: createUserDto.username,
+            password
+        }).save()
     }
 }
