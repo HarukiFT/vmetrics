@@ -1,8 +1,7 @@
 import { BadRequestException, Body, Controller, Post } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
 import { AuthDto } from './dto/auth.dto';
 import { AuthService } from './auth.service';
-import { UserPayload } from './interfaces/user-payload.interface';
+import { UserPayload } from '../../shared/interfaces/user-payload.interface';
 import { JwtService } from '@nestjs/jwt';
 
 @Controller('auth')
