@@ -32,4 +32,12 @@ export class ProjectsService {
             owner: mongoose.Types.ObjectId.createFromHexString(owner._id)
         }).save()
     }
+
+    async fetchProjects(owner: UserPayload) {
+        const userOID = mongoose.Types.ObjectId.createFromHexString(owner._id)
+
+        return await this.projectModel.find({
+            owner: userOID
+        })
+    }
 }
