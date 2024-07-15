@@ -17,5 +17,5 @@ export class Project {
     timestamp: Date
 }
 
-export type ProjectDocumet = Project & Document
+export type ProjectDocument = Project & Document
 export const ProjectSchema = SchemaFactory.createForClass(Project) 

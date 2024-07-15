@@ -10,8 +10,7 @@ export class AuthGuard implements CanActivate {
         const request = context.switchToHttp().getRequest()
 
         const authData: string[] = (request.headers['authorization'] ?? '').split(' ')
-        if (authData.length !== 2 || authData[0] !== 'Bearer') return;
-        
+        if (authData.length !== 2 || authData[0] !== 'Bearer') throw new UnauthorizedException();
         try {
             const payload = await this.jwtService.verifyAsync(authData[1]) as UserPayload
             request.user = payload
