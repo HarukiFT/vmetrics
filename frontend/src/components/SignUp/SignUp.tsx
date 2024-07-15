@@ -1,4 +1,10 @@
-import { Box, Button, TextField, Typography } from "@mui/material"
+import { Box, Button, Grid, TextField, Typography, styled } from "@mui/material"
+import { Link } from "react-router-dom"
+
+const AdditionalLink = styled(Link)((t) => ({
+    color: t.theme.palette.info.main,
+    width: '100%',
+}))
 
 export default () => {
     return (
@@ -11,6 +17,12 @@ export default () => {
                     <TextField fullWidth name="password" margin="normal" type="password" placeholder="Введите пароль"></TextField>
                     <Button type="submit" sx={{mt: 1}} fullWidth variant="contained">Создать аккаунт</Button>
                 </Box>
+
+                <Grid container mt={1} justifyContent={"flex-end"}>
+                    <Grid item>
+                        <AdditionalLink to="/login">Уже есть аккаунт</AdditionalLink>
+                    </Grid>
+                </Grid>
             </Box>
         </Box>
     )
