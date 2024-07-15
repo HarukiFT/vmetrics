@@ -4,6 +4,7 @@ import './index.css';
 import reportWebVitals from './reportWebVitals';
 import App from './components/App/App';
 import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements } from 'react-router-dom';
+import SignUp from './components/SignUp/SignUp';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -11,7 +12,7 @@ const root = ReactDOM.createRoot(
 
 const router = createBrowserRouter(createRoutesFromElements(
   <Route path="/" element={<App/>}>
-    
+    <Route path="register" element={<SignUp/>}/>
   </Route>
 ))
 
