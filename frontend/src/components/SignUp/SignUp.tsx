@@ -1,9 +1,8 @@
 import { Box, Button, Grid, TextField, Typography, styled } from "@mui/material"
 import { ChangeEvent, FormEvent, FormEventHandler, useState } from "react"
 import { Link } from "react-router-dom"
-import axiosInstance from "../../shared/services/axiosInstance"
 import { toast } from "react-toastify"
-import axios, { AxiosError } from "axios"
+import axiosRequest from "../../shared/services/axiosInstance"
 
 const AdditionalLink = styled(Link)((t) => ({
     color: t.theme.palette.info.main,
@@ -33,12 +32,12 @@ export default () => {
 
         const proceed = async () => {
             try {
-                const existResponse = await axiosInstance.get(`/users/isexist?username=${fields.username}`)
-                if (existResponse.data) { 
+                const existResponse = await axiosRequest.get<boolean>(`/users/isexist?username=${fields.username}`)
+                if (existResponse) { 
                     toast.error('Логин занят')
                     return
                 }
-                await axiosInstance.post('/users/register', fields)
+                await axiosRequest.post('/users/register', fields)
                 toast.success('Аккаунт успешно создан!')
             } catch (err: any) {
                 toast.error(`Ошибка [${err.status}]`)
