@@ -14,7 +14,7 @@ export class AuthController {
         if (!document) throw new BadRequestException();
 
         const payload: UserPayload = {
-            _id: document._id.toHexString(),
+            _id: document.id,
             username: document.username
         }
 
