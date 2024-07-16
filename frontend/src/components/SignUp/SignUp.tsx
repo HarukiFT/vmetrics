@@ -40,7 +40,7 @@ export default () => {
                 await axiosRequest.post('/users/register', fields)
                 toast.success('Аккаунт успешно создан!')
             } catch (err: any) {
-                toast.error(`Ошибка [${err.status}]`)
+                toast.error(`Ошибка [${err.response.status}]`)
             }
         }
 

@@ -1,4 +1,4 @@
-import { Avatar, Box, Button, Container, Divider, Drawer, Fade, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem, MenuList, Paper, Popper, SvgIconTypeMap, Toolbar, Tooltip, styled } from "@mui/material"
+import { Avatar, Box, Button, ClickAwayListener, Container, Divider, Drawer, Fade, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem, MenuList, Paper, Popper, SvgIconTypeMap, Toolbar, Tooltip, styled } from "@mui/material"
 import { Link, useNavigate } from "react-router-dom"
 import { pages } from "./Pages"
 import { OverridableComponent } from "@mui/material/OverridableComponent"
@@ -58,16 +58,18 @@ const ProfileFooter = () => {
                 {
                     ({TransitionProps}) => (
                         <Fade {...TransitionProps} timeout={350}>
-                            <Paper elevation={1} sx={{transform: 'translateX(-25%)'}}>
-                                <MenuList>
-                                    <MenuItem onClick={handleExit} key={'exit'}>
-                                        <ListItemIcon>
-                                            <ExitIcon/>
-                                        </ListItemIcon>
-                                        <ListItemText>Выйти</ListItemText>
-                                    </MenuItem>
-                                </MenuList>
-                            </Paper>
+                                <Paper elevation={1} sx={{transform: 'translateX(-25%)'}}>
+                                    <ClickAwayListener onClickAway={() => setAnchorEl(null)}>
+                                        <MenuList>
+                                            <MenuItem onClick={handleExit} key={'exit'}>
+                                                <ListItemIcon>
+                                                    <ExitIcon/>
+                                                </ListItemIcon>
+                                                <ListItemText>Выйти</ListItemText>
+                                            </MenuItem>
+                                        </MenuList>
+                                    </ClickAwayListener>
+                                </Paper>
                         </Fade>
                     )
                 }

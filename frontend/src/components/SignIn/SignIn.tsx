@@ -47,7 +47,6 @@ export default () => {
                 } else {
                     toast.error('Непредвиденная ошибка')
                 }
-                
             }
         }
 
