@@ -7,6 +7,8 @@ import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements } 
 import SignUp from './components/SignUp/SignUp';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import SignIn from './components/SignIn/SignIn';
+import { AuthContextProvider } from './contexts/AuthContext/AuthContext';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -15,13 +17,16 @@ const root = ReactDOM.createRoot(
 const router = createBrowserRouter(createRoutesFromElements(
   <Route path="/" element={<App/>}>
     <Route path="register" element={<SignUp/>}/>
+    <Route path="login" element={<SignIn/>}/>
   </Route>
 ))
 
 root.render(
   <>
-    <RouterProvider router={router}/>
-    <ToastContainer theme='dark'/>
+    <AuthContextProvider>
+      <RouterProvider router={router}/>
+      <ToastContainer theme='dark'/>
+    </AuthContextProvider>
   </>
 );
 
