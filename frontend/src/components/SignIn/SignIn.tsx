@@ -1,8 +1,9 @@
 import { Box, Typography, TextField, Button, Grid, styled } from "@mui/material"
-import { useState, FormEvent } from "react"
+import { useState, FormEvent, useEffect } from "react"
 import { toast } from "react-toastify"
 import axiosRequest from "../../shared/services/axiosInstance"
-import { Link } from "react-router-dom"
+import { Link, useBeforeUnload, useNavigate } from "react-router-dom"
+import { useAuth } from "../../contexts/AuthContext/AuthContext"
 
 const AdditionalLink = styled(Link)((t) => ({
     color: t.theme.palette.info.main,
@@ -10,6 +11,9 @@ const AdditionalLink = styled(Link)((t) => ({
 }))
 
 export default () => {
+    const auth = useAuth()
+    const navigate = useNavigate()
+
     const [fields, setFields] = useState({
         username: null,
         password: null
@@ -33,7 +37,10 @@ export default () => {
         const proceed = async () => {
             try {
                 const token = await axiosRequest.post<{token: string}>(`/auth/auth`, fields)
+                auth.setToken(token.token)
+
                 toast.success('Добро пожаловать!')
+                navigate('/')
             } catch (err: any) {
                 if (err.response.status === 400) {
                     toast.error(`Неверные данные`)
