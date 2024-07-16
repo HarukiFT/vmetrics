@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { UserDocument } from './schemas/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { getSalt, hash } from 'bcryptjs';
@@ -20,6 +20,14 @@ export class UsersService {
     async getUserByUsername(username: string) {
         const userDocument = await this.userModel.findOne({
             username
+        }).exec()
+
+        return userDocument
+    }
+
+    async getUserById(userId: string) {
+        const userDocument = await this.userModel.findOne({
+            _id: mongoose.Types.ObjectId.createFromHexString(userId)
         }).exec()
 
         return userDocument
