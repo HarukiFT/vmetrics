@@ -1,7 +1,11 @@
-import { Avatar, Box, Button, Container, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, SvgIconTypeMap, Toolbar, Tooltip, styled } from "@mui/material"
-import { Link } from "react-router-dom"
+import { Avatar, Box, Button, Container, Divider, Drawer, Fade, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem, MenuList, Paper, Popper, SvgIconTypeMap, Toolbar, Tooltip, styled } from "@mui/material"
+import { Link, useNavigate } from "react-router-dom"
 import { pages } from "./Pages"
 import { OverridableComponent } from "@mui/material/OverridableComponent"
+import { useAuth } from "../../contexts/AuthContext/AuthContext"
+import { createRef, useEffect, useRef, useState } from "react"
+import ExitIcon from '@mui/icons-material/ExitToApp';
+import { toast } from "react-toastify"
 
 const StyledLink = styled(Link)((t) => ({
     textDecoration: 'none',
@@ -11,33 +15,72 @@ const StyledLink = styled(Link)((t) => ({
 
 const LoginFooter = () => {
     return (
-       <Box width={1} px={3} display={"flex"} alignItems={'center'} justifyContent={"center"}>
+        <Box width={1} px={3} display={"flex"} alignItems={'center'} justifyContent={"center"}>
             <Button variant="text" fullWidth>
                 <StyledLink to={'/login'}>Войти</StyledLink>
             </Button>
-       </Box> 
+        </Box>
     )
 }
 
 const ProfileFooter = () => {
-    return (
-       <Box width={1} px={3} display={"flex"} alignItems={'center'} justifyContent={"center"}>
-            <Tooltip title="Профиль">
-                <IconButton>
-                    <Avatar  sx={{
-                        backgroundColor: 'primary.dark'
-                    }}>
+    const {setToken, userData} = useAuth()
 
-                    </Avatar>
-                </IconButton>
-            </Tooltip>
-       </Box> 
-    )
+    const navigate = useNavigate()
+
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+    const anchorRef = useRef<HTMLDivElement>(null)
+    const [tooltipOpen, setTooltipOpen] = useState(false);
+
+    const handleClick = () => {
+        setAnchorEl(anchorEl ? null : anchorRef.current)
+    };
+
+    const handleExit = () => {
+        setToken('')
+        navigate('/')
+
+        toast.info('Вы вышли из системы')
+    }
+
+    return (
+        <Box width={1} px={3} display={"flex"} alignItems={'center'} justifyContent={"center"}>
+            <IconButton onClick={handleClick}>
+                <Avatar ref={anchorRef} sx={{ backgroundColor: 'primary.dark' }}></Avatar>
+            </IconButton>
+
+            <Popper anchorEl={anchorEl} open={Boolean(anchorEl)} role={undefined} modifiers={[{
+                        name: 'offset',
+                        options: {
+                            offset: [0, 20]
+                        },
+                }]} disablePortal transition placement="top-start">
+                {
+                    ({TransitionProps}) => (
+                        <Fade {...TransitionProps} timeout={350}>
+                            <Paper elevation={1} sx={{transform: 'translateX(-25%)'}}>
+                                <MenuList>
+                                    <MenuItem onClick={handleExit} key={'exit'}>
+                                        <ListItemIcon>
+                                            <ExitIcon/>
+                                        </ListItemIcon>
+                                        <ListItemText>Выйти</ListItemText>
+                                    </MenuItem>
+                                </MenuList>
+                            </Paper>
+                        </Fade>
+                    )
+                }
+            </Popper>
+        </Box>
+    );
 }
 
 const sideMenuWidth = 200
 
 export default () => {
+    const { userData } = useAuth()
+
     return (
         <Drawer sx={{
             '& .MuiDrawer-paper': {
@@ -54,7 +97,7 @@ export default () => {
                                     <StyledLink to={page.href}>
                                         <ListItemButton>
                                             <ListItemIcon>
-                                                <page.icon/>
+                                                <page.icon />
                                             </ListItemIcon>
                                             <ListItemText>{page.label}</ListItemText>
                                         </ListItemButton>
@@ -65,8 +108,9 @@ export default () => {
                     }
                 </List>
             </Box>
-
-            <LoginFooter/>
+            {
+                userData ? <ProfileFooter/> : <LoginFooter/>
+            }
         </Drawer>
     )
 }
