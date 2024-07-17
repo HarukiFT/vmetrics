@@ -1,4 +1,4 @@
-import { IsDate, IsDateString, IsNumber, IsString } from "class-validator";
+import { IsDate, IsDateString, IsNumber, IsOptional, IsString } from "class-validator";
 
 export class CreateLogDto {
     @IsString()
@@ -7,8 +7,9 @@ export class CreateLogDto {
     @IsNumber()
     sender: number
 
+    @IsOptional()
     @IsDateString()
-    timestamp: string
+    timestamp?: string
 
     [key: string]: any
 }

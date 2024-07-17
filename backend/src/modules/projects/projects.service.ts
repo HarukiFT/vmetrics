@@ -6,7 +6,7 @@ import { CreateProjectDto } from './dto/create-project.dto';
 import { ConfigService } from '@nestjs/config';
 import { UserPayload } from 'src/shared/interfaces/user-payload.interface';
 
-export interface ProjectData { _id: string, name: string, client?: string, timestamp: string}
+export interface ProjectData { _id: string, name: string, client?: string, timestamp: string, apiKey: string}
 
 const getApiKey = (length: number) => {
     let result = '';
@@ -17,6 +17,7 @@ const getApiKey = (length: number) => {
       result += characters.charAt(Math.floor(Math.random() * charactersLength));
       counter += 1;
     }
+
     return result;
 }
 
@@ -35,8 +36,14 @@ export class ProjectsService {
         }).save()
     }
 
+    async getProject(projectId: string): Promise<ProjectDocument | null> {
+        const projectOID = mongoose.Types.ObjectId.createFromHexString(projectId)
+
+        return await this.projectModel.findById(projectOID)
+    }
+
     async getProjectByApi(apiKey: string): Promise<ProjectDocument | null> {
-        return await this.projectModel.findOne({apiKey: apiKey}).exec()
+        return await this.projectModel.findOne({apiKey: apiKey})
     }
 
     async fetchProjects(owner: UserPayload): Promise<ProjectData[]> {
@@ -52,7 +59,8 @@ export class ProjectsService {
                 _id: document.id,
                 name: document.name,
                 timestamp: document.timestamp.toUTCString(),
-                client: document.client
+                client: document.client,
+                apiKey: document.apiKey
             })
         })
 

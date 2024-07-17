@@ -8,9 +8,19 @@ import { CreateLogDto } from './dto/create-log.dto';
 export class LogsService {
     constructor(@InjectModel('Log') private readonly logModel: Model<LogDocument>) {}
 
-    async createLog(projectId: string, createLogDto: CreateLogDto): Promise<undefined> {
+    async getLogs(projectId: string, filter: Record<string, any>) {
         const projectOID = mongoose.Types.ObjectId.createFromHexString(projectId)
 
-        await new this.logModel({...createLogDto, project: projectOID}).save()
+        return await this.logModel.find({
+            ...filter,
+            project: projectOID
+        })
+    }
+
+    async createLog(projectId: string, createLogDto: CreateLogDto): Promise<undefined> {
+        const projectOID = mongoose.Types.ObjectId.createFromHexString(projectId)
+        const timestamp = createLogDto.timestamp ?? new Date()
+
+        await new this.logModel({...createLogDto, timestamp, project: projectOID}).save()
     }
 }
