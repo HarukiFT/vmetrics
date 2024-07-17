@@ -21,7 +21,7 @@ export default () => {
     useEffect(() => {
         const proceed = async () => {
             try {
-                setProjectsData(await axiosRequest.get('/projects/fetch'))
+                setProjectsData(await axiosRequest.get<ProjectData[]>('/projects/fetch'))
             } catch {
                 setProjectsData([])
 
