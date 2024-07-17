@@ -47,7 +47,7 @@ export class ProjectsService {
             mapped.push({
                 _id: document.id,
                 name: document.name,
-                timestamp: document.timestamp.toDateString(),
+                timestamp: document.timestamp.toUTCString(),
                 client: document.client
             })
         })
