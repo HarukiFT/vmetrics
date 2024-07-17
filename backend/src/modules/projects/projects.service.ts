@@ -35,6 +35,10 @@ export class ProjectsService {
         }).save()
     }
 
+    async getProjectByApi(apiKey: string): Promise<ProjectDocument | null> {
+        return await this.projectModel.findOne({apiKey: apiKey}).exec()
+    }
+
     async fetchProjects(owner: UserPayload): Promise<ProjectData[]> {
         const userOID = mongoose.Types.ObjectId.createFromHexString(owner._id)
 
