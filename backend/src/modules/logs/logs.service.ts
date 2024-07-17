@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { LogDocument } from './schemas/logs.schema';
 import { CreateLogDto } from './dto/create-log.dto';
+import { DistinctFieldAggregation } from './aggregations/distinct-fields';
 
 @Injectable()
 export class LogsService {
@@ -15,6 +16,22 @@ export class LogsService {
             ...filter,
             project: projectOID
         })
+    }
+
+    async getLogsFields(projectId: string, filter: Record<string, any>) {
+        const projectOID = mongoose.Types.ObjectId.createFromHexString(projectId)
+
+        console.log(DistinctFieldAggregation({
+            ...filter,
+            project: projectOID
+        }))
+
+        const aggregationResult = await this.logModel.aggregate(DistinctFieldAggregation({
+            ...filter,
+            project: projectOID
+        }))
+
+        return aggregationResult.map((doc) => doc.field)
     }
 
     async createLog(projectId: string, createLogDto: CreateLogDto): Promise<undefined> {

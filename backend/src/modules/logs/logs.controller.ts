@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req, Request, UseGuards } from '@nestjs/common';
 import { CreateLogDto } from './dto/create-log.dto';
 import { LogsService } from './logs.service';
 import { ApiGuard } from '../projects/guards/api.guard';
@@ -31,6 +31,15 @@ export class LogsController {
         const projectId: string = request.projectId
         const filter = await new Filter(filterString || '').toQuery()
 
-        return this.logsService.getLogs(projectId, filter)
+        return await this.logsService.getLogs(projectId, filter)
+    }
+
+    @Get('/fields')
+    @UseGuards(AuthGuard, ProjectGuard)
+    async getFields(@Request() request, @Query('filter') filterString: string) {
+        const projectId: string = request.projectId
+        const filter = await new Filter(filterString || '').toQuery()
+
+        return await this.logsService.getLogsFields(projectId, filter)
     }
 }
