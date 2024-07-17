@@ -1,10 +1,12 @@
 import { Injectable, UseGuards } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose'
 import mongoose, { Model } from 'mongoose';
-import { ProjectDocument } from './schemas/project.schema';
+import { Project, ProjectDocument } from './schemas/project.schema';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { ConfigService } from '@nestjs/config';
 import { UserPayload } from 'src/shared/interfaces/user-payload.interface';
+
+export interface ProjectData { _id: string, name: string, client?: string, timestamp: string}
 
 const getApiKey = (length: number) => {
     let result = '';
@@ -33,11 +35,23 @@ export class ProjectsService {
         }).save()
     }
 
-    async fetchProjects(owner: UserPayload) {
+    async fetchProjects(owner: UserPayload): Promise<ProjectData[]> {
         const userOID = mongoose.Types.ObjectId.createFromHexString(owner._id)
 
-        return await this.projectModel.find({
+        const queryResult = await this.projectModel.find({
             owner: userOID
+        }).exec()
+
+        const mapped: ProjectData[] = []
+        queryResult.forEach(document => {
+            mapped.push({
+                _id: document.id,
+                name: document.name,
+                timestamp: document.timestamp.toDateString(),
+                client: document.client
+            })
         })
+
+        return mapped
     }
 }

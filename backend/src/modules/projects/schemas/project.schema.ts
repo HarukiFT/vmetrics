@@ -10,6 +10,9 @@ export class Project {
     @Prop({type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true})
     owner: mongoose.Types.ObjectId | User
 
+    @Prop({type: String})
+    client?: string
+
     @Prop({type: String, required: true})
     apiKey: string
 
