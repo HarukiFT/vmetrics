@@ -8,12 +8,15 @@ import { useEffect, useState } from "react";
 import { ProjectData } from "./Project.interface";
 import axiosRequest from "../../shared/services/axiosInstance";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const pageSize = 9
 
 export default () => {
     const [projectsData, setProjectsData] = useState<ProjectData[]>([])
     const [page, setPage] = useState<number>(1)
+
+    const navigate = useNavigate()
 
     useEffect(() => {
         const proceed = async () => {
@@ -29,6 +32,10 @@ export default () => {
         setPage(1)
         proceed()
     }, [])
+
+    const handleAdd = () => {
+        navigate('/newproject')
+    }
 
     return (
         <Box position={'relative'} width={1} p={3} flexGrow={1} display={"flex"} flexDirection={'column'} justifyContent={'center'} alignItems={'center'}>
@@ -50,7 +57,7 @@ export default () => {
                         </Grid>
 
                         <Grid item display={"flex"} justifyContent={"flex-end"} xs={5}>
-                            <Button color="success" variant="contained">
+                            <Button onClick={handleAdd} color="success" variant="contained">
                                 <AddIcon />
                             </Button>
                         </Grid>
@@ -90,7 +97,7 @@ export default () => {
                 <Stack direction={"column"} spacing={1}>
                     {
                         projectsData.slice((page - 1) * pageSize, page * pageSize).map((projectData, index) => (
-                            <Paper elevation={5} sx={{ py: 1, px: 2 }}>
+                            <Paper elevation={5} key={projectData._id} sx={{ py: 1, px: 2 }}>
                                 <Grid container alignItems={'center'} spacing={1}>
                                     <Grid item xs={1}>
                                         <Typography variant="h6" letterSpacing={.3}>
