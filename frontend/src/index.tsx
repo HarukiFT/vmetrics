@@ -10,6 +10,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import SignIn from './components/SignIn/SignIn';
 import { AuthContextProvider } from './contexts/AuthContext/AuthContext';
 import Projects from './components/Projects/Projects';
+import NewProject from './components/NewProject/NewProject';
+import Logs from './components/Logs/Logs';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -20,6 +22,8 @@ const router = createBrowserRouter(createRoutesFromElements(
     <Route path="register" element={<SignUp/>}/>
     <Route path="login" element={<SignIn/>}/>
     <Route path="projects" element={<Projects/>}/>
+    <Route path="newproject" element={<NewProject/>}/>
+    <Route path="logs" element={<Logs/>}/>
   </Route>
 ))
 

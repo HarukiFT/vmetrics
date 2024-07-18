@@ -21,11 +21,6 @@ export class LogsService {
     async getLogsFields(projectId: string, filter: Record<string, any>) {
         const projectOID = mongoose.Types.ObjectId.createFromHexString(projectId)
 
-        console.log(DistinctFieldAggregation({
-            ...filter,
-            project: projectOID
-        }))
-
         const aggregationResult = await this.logModel.aggregate(DistinctFieldAggregation({
             ...filter,
             project: projectOID

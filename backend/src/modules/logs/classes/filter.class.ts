@@ -15,10 +15,10 @@ const formatters = {
                 ]
             })
 
-            if (result.data.data.length === 0) { return undefined }
+            if (result.data.data.length === 0) { return -1 }
             return (result.data.data[0].id)
         } catch {
-            return undefined
+            return -1
         }
     }
 }
@@ -34,6 +34,7 @@ export class Filter {
 
     async parseValue(value: string) {
         if (isNaN(parseFloat(value))) {
+
             const match = formatRegexp.exec(value)
             if (match === null || match.length < 3) {
                 return value
@@ -42,7 +43,11 @@ export class Filter {
             const formatType = match[1]
             const valueToFormat = match[2]
 
-            return await formatters[formatType](valueToFormat)
+            if (formatters[formatType]) {
+                return await formatters[formatType](valueToFormat)
+            }
+            
+            return valueToFormat
         } else {
             return parseFloat(value)
         }
@@ -65,7 +70,7 @@ export class Filter {
 
             const formattedValue = await this.parseValue(value)
 
-            if (!key ||  !formattedValue) continue;
+            if (key === undefined || formattedValue === undefined) continue;
 
             query[key] = {[operation]: formattedValue}
        }

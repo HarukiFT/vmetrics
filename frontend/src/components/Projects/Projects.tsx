@@ -44,7 +44,7 @@ export default () => {
                     Проекты
                 </Typography>
 
-                <Paper elevation={5} sx={{ py: 1, px: 2, mb: 2 }}>
+                <Paper elevation={5} sx={{ py: 1, px: 2, mb: 2}}>
                     <Grid container spacing={1}>
                         <Grid item xs={4}>
                             <TextField size="small" fullWidth placeholder="Поиск проекта"></TextField>

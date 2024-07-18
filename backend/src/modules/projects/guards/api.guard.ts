@@ -12,7 +12,6 @@ export class ApiGuard implements CanActivate {
 
         const apiKey = request.headers['api-key'] ?? ''
         const projectDocument : ProjectDocument | null = await this.projectService.getProjectByApi(apiKey)
-        console.log(projectDocument)
         if (!projectDocument) {
             return false
         }
