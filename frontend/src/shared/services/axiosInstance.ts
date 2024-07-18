@@ -14,7 +14,6 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use((config: InternalAxiosRequestConfig<any>) => {
   const token = localStorage.getItem('AUTH_TOKEN')
-  console.log(token)
 
   if (token) {
     if (config.headers) {

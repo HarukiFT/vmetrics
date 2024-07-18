@@ -1,4 +1,4 @@
-import { Autocomplete, AutocompleteRenderInputParams, Box, Button, ClickAwayListener, Divider, Drawer, Grid, Icon, IconButton, MenuItem, MenuList, Paper, Popper, Stack, TextField, Typography, useScrollTrigger } from "@mui/material"
+import { Autocomplete, AutocompleteRenderInputParams, Box, Button, ClickAwayListener, Divider, Drawer, Grid, Icon, IconButton, MenuItem, MenuList, Pagination, Paper, Popper, Stack, TextField, Typography, useScrollTrigger } from "@mui/material"
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 import { ProjectData } from "../Projects/Project.interface";
@@ -21,15 +21,23 @@ interface FilterProps {
     onUpdate: (filters: Record<number, FilterType>) => void
 }
 
+const pageSize = 10
+
 const comparesOptions = [
     { label: '=', id: 1 },
     { label: '>', id: 2 },
     { label: '<', id: 3 }
 ]
 
-const PopperWithFilters: React.FC<FilterProps> = ({ onUpdate, appliedFilter, fields }) => {
-    console.log(fields)
+const LogLine = () => {
+    return (
+        <Paper sx={{ width: '100%', p: 1.5 }} elevation={5}>
+            <Typography variant="body1">Строка логов</Typography>
+        </Paper>
+    )
+}
 
+const PopperWithFilters: React.FC<FilterProps> = ({ onUpdate, appliedFilter, fields }) => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLButtonElement>(null)
     const anchorRef = useRef<HTMLButtonElement>(null)
 
@@ -111,7 +119,7 @@ const PopperWithFilters: React.FC<FilterProps> = ({ onUpdate, appliedFilter, fie
     return (
         <Box>
             <Button ref={anchorRef} onClick={handleClick} color="secondary" size="medium">
-                <FilterIcon fontSize="medium"/>
+                <FilterIcon fontSize="medium" />
             </Button>
             <Popper open={open} anchorEl={anchorEl} role={undefined} placement="bottom-start">
                 <Paper elevation={5} sx={{ width: 550, px: 1, py: 2 }}>
@@ -145,7 +153,7 @@ const PopperWithFilters: React.FC<FilterProps> = ({ onUpdate, appliedFilter, fie
                                                     return <TextField label={'Сравнение'} {...params}></TextField>
                                                 }} />
 
-                                                <TextField onChange={handleChangeValue(filterId)} size="small" autoComplete='off' label='Значение' />
+                                                <TextField onChange={handleChangeValue(filterId)} size="small" autoComplete='off' label='Значение' value={filters[filterId].value} />
                                             </Stack>
                                         </>
                                     )
@@ -166,15 +174,21 @@ export default () => {
     const [selectedProject, setSelectedProject] = useState<string>()
     const [sender, setSender] = useState<string>()
     const [logs, setLogs] = useState([])
-
+    const [logsCount, setLogsCount] = useState<number>(0)
+    const [page, setPage] = useState<number>(1)
+    const [prevAction, setAction] = useState<string>()
+    const [actions, setActions] = useState<string[]>()
 
     const updateFields = async () => {
         if (selectedProject === undefined) {
             setFields([])
+            setLogsCount(0)
             return
         };
 
         const actionFilter = Object.entries(appliedFilters).find(([_, filter]) => Boolean(filter.field == 'action'))
+
+        console.log('called')
 
         try {
             const fields = await axiosRequest.get<string[]>(`/logs/fields?filter=action=${actionFilter ? actionFilter[1].value : '-1'}`, {
@@ -186,20 +200,74 @@ export default () => {
             setFields(fields.length > 0 ? fields.map((field, index) => ({
                 label: field,
                 id: index
-            })) : [{label: 'action', id: 1}])
+            })) : [{ label: 'action', id: 1 }])
         } catch {
-            setFields([{label: 'action', id: 1}])
+            setFields([{ label: 'action', id: 1 }])
             toast.error('Непредвиденная ошибка')
+        }
+    }
+
+    const updateLogs = async () => {
+        try {
+            const filterList: string[] = []
+
+            for (let [, filter] of Object.entries(appliedFilters)) {
+                if (filter.field && filter.compare && filter.value) {
+                    filterList.push(`${filter.field}${filter.compare}${filter.value}`)
+                }
+            }
+
+            const logs = await axiosRequest.get(`logs/get?filter=sender=${sender},${filterList.join(',')}&page=${page}&limit=${pageSize}`, {
+                headers: {
+                    ['project-id']: selectedProject
+                }
+            } as any)
+
+            console.log(logs)
+
+            setLogs(logs as [])
+        } catch {
+
         }
     }
 
     useEffect(() => {
         updateFields()
         setFilters({})
+        setLogs([])
+
+        if (selectedProject) {
+            axiosRequest.get<string[]>('/logs/actions', {
+                headers: {
+                    ['project-id']: selectedProject
+                }
+            } as any).then(actions => {
+                setActions(actions)
+            }).catch(() => {
+                toast.error('Непредвиденная ошибка')
+            })
+        }
     }, [selectedProject])
 
     useEffect(() => {
-        updateFields()
+        const currentAction = Object.entries(appliedFilters).find(([_, filter]) => filter.field == 'action')
+        if (!currentAction) {
+            if (prevAction) {
+                setFields([{label: 'action', id: 1}])
+            }
+
+            return
+        }
+
+        if (prevAction !== currentAction[1].value) {
+            setAction(currentAction[1].value)
+
+            if (actions?.find((action) => action === currentAction[1].value)) {
+                updateFields()
+            } else {
+                setFields([{label: 'action', id: 1}])
+            }
+        }
     }, [appliedFilters])
 
     useEffect(() => {
@@ -216,11 +284,15 @@ export default () => {
         proceed()
     }, [])
 
+    useEffect(() => {
+        updateLogs()
+    }, [page])
+
     const handleSenderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.value === '') {
             setSender(undefined)
         } else {
-            setSender(isNaN(parseInt(e.target.value)) ? '@player/'+e.target.value : e.target.value)
+            setSender(isNaN(parseInt(e.target.value)) ? '@player/' + e.target.value : e.target.value)
         }
     }
 
@@ -229,23 +301,30 @@ export default () => {
         if (!selectedProject) return;
 
         const filterList: string[] = []
-        
+
         for (let [, filter] of Object.entries(appliedFilters)) {
             if (filter.field && filter.compare && filter.value) {
-                 filterList.push(`${filter.field}${filter.compare}${filter.value}`)
+                filterList.push(`${filter.field}${filter.compare}${filter.value}`)
             }
         }
 
         const proceed = async () => {
             try {
-                const logs = await axiosRequest.get(`logs/get?filter=sender=${sender},${filterList.join(',')}`, {
+                const logs = await axiosRequest.get(`logs/get?filter=sender=${sender},${filterList.join(',')}&page=1&limit=${pageSize}`, {
                     headers: {
                         ['project-id']: selectedProject
                     }
                 } as any)
 
-                console.log(logs)
-            } catch {
+                const logsCount = await axiosRequest.get<number>(`logs/count?filter=sender=${sender},${filterList.join(',')}`, {
+                    headers: {
+                        ['project-id']: selectedProject
+                    }
+                } as any)
+                setLogsCount(logsCount)
+                setPage(1)
+                setLogs(logs as [])
+            } catch (err) {
                 toast.error('Непредвиденная ошибка')
             }
         }
@@ -291,11 +370,26 @@ export default () => {
 
                     <Grid item xs={1}>
                         <Button onClick={handleFind} fullWidth size="large" color={"success"} variant="outlined">
-                            <SearchIcon fontSize="medium"/>
+                            <SearchIcon fontSize="medium" />
                         </Button>
                     </Grid>
                 </Grid>
             </Paper>
+
+            <Stack alignItems={'center'} direction={'column'} mt={2} spacing={1}>
+                {
+                    logs.map(() => {
+                        return <LogLine />
+                    })
+                }
+            </Stack>
+
+            <Pagination size="large" variant="outlined" shape="rounded" onChange={(_, page) => { setPage(page) }} count={Math.ceil(logsCount / pageSize)} page={page} sx={{
+                position: 'absolute',
+                left: '50%',
+                bottom: '1em',
+                transform: 'translateX(-50%)'
+            }} />
         </Box>
     )
 }
