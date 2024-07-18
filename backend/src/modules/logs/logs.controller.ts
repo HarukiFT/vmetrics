@@ -25,13 +25,33 @@ export class LogsController {
         }
     }
 
+    @Get('/actions')
+    @UseGuards(AuthGuard, ProjectGuard)
+    async getActions(@Request() request) {
+        const projectId = request.projectId
+
+        return await this.logsService.getActions(projectId)
+    }
+
     @Get('/get')
     @UseGuards(AuthGuard, ProjectGuard)
-    async getLogs(@Request() request, @Query('filter') filterString: string) {
+    async getLogs(@Request() request, @Query('filter') filterString: string, @Query('limit') limit: string, @Query('page') page: string) {
+        console.log(filterString)
+        const projectId: string = request.projectId
+        const limitNumber = parseInt(limit)
+        const pageNumber = parseInt(page)
+        const filter = await new Filter(filterString || '').toQuery()
+
+        return await this.logsService.getLogs(projectId, filter, limitNumber, pageNumber)
+    }
+
+    @Get('/count')
+    @UseGuards(AuthGuard, ProjectGuard)
+    async countLogs(@Request() request, @Query('filter') filterString: string) {
         const projectId: string = request.projectId
         const filter = await new Filter(filterString || '').toQuery()
 
-        return await this.logsService.getLogs(projectId, filter)
+        return await this.logsService.countLogs(projectId, filter)
     }
 
     @Get('/fields')

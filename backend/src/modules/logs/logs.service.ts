@@ -9,11 +9,28 @@ import { DistinctFieldAggregation } from './aggregations/distinct-fields';
 export class LogsService {
     constructor(@InjectModel('Log') private readonly logModel: Model<LogDocument>) {}
 
-    async getLogs(projectId: string, filter: Record<string, any>) {
+    async getLogs(projectId: string, filter: Record<string, any>, limit: number, page: number) {
         const projectOID = mongoose.Types.ObjectId.createFromHexString(projectId)
 
         return await this.logModel.find({
             ...filter,
+            project: projectOID
+        }).skip(limit * (page - 1)).limit(limit)
+    }
+
+    async countLogs(projectId: string, filter: Record<string, any>) {
+        const projectOID = mongoose.Types.ObjectId.createFromHexString(projectId)
+
+        return await this.logModel.countDocuments({
+            ...filter,
+            project: projectOID
+        })
+    }
+
+    async getActions(projectId: string) {
+        const projectOID = mongoose.Types.ObjectId.createFromHexString(projectId)
+
+        return await this.logModel.distinct('action', {
             project: projectOID
         })
     }
