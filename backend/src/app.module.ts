@@ -8,6 +8,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ProjectsModule } from './modules/projects/projects.module';
 import { LogsModule } from './modules/logs/logs.module';
+import { FormatsModule } from './modules/formats/formats.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -18,7 +19,7 @@ import { LogsModule } from './modules/logs/logs.module';
     useFactory: async (configService: ConfigService) => ({
       uri: configService.get<string>('CONNECTION_STRING')
     })
-  }), UsersModule, AuthModule, ProjectsModule, LogsModule],
+  }), UsersModule, AuthModule, ProjectsModule, LogsModule, FormatsModule],
   controllers: [AppController],
   providers: [AppService],
 })
