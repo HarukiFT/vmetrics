@@ -5,7 +5,7 @@ interface FormatTableValue {
     [key: string]: string;
 }
 
-export class CreateDto {
+export class CreateFormatDto {
     @IsString()
     action: string;
 
