@@ -12,6 +12,7 @@ import { AuthContextProvider } from './contexts/AuthContext/AuthContext';
 import Projects from './components/Projects/Projects';
 import NewProject from './components/NewProject/NewProject';
 import Logs from './components/Logs/Logs';
+import Formatters from './components/Formatters/Formatters';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -24,6 +25,7 @@ const router = createBrowserRouter(createRoutesFromElements(
     <Route path="projects" element={<Projects/>}/>
     <Route path="newproject" element={<NewProject/>}/>
     <Route path="logs" element={<Logs/>}/>
+    <Route path="formatters" element={<Formatters/>}/>
   </Route>
 ))
 

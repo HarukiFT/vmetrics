@@ -1,5 +1,4 @@
-import { Autocomplete, AutocompleteRenderInputParams, Box, Button, ClickAwayListener, Divider, Drawer, Grid, Icon, IconButton, MenuItem, MenuList, Pagination, Paper, Popper, Stack, TextField, Typography, useScrollTrigger } from "@mui/material"
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { Autocomplete, AutocompleteRenderInputParams, Box, Button, ClickAwayListener, useTheme, styled, Divider, Drawer, Grid, Icon, IconButton, MenuItem, MenuList, Pagination, Paper, Popper, Stack, TextField, Typography, useScrollTrigger } from "@mui/material"
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 import { ProjectData } from "../Projects/Project.interface";
 import axiosRequest from "../../shared/services/axiosInstance";
@@ -8,6 +7,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import AddIcon from '@mui/icons-material/Add';
 import FilterIcon from '@mui/icons-material/FilterAltOutlined';
 import SearchIcon from '@mui/icons-material/Search';
+import { useNavigate } from "react-router-dom";
+import StaticTextDisplay from "./StaticDisplay";
 
 interface FilterType {
     compare?: string
@@ -19,6 +20,12 @@ interface FilterProps {
     appliedFilter: Record<number, FilterType>
     fields: { label: string, id: number }[]
     onUpdate: (filters: Record<number, FilterType>) => void
+}
+
+interface LogLineType {
+    timestamp: string
+    string?: string
+    params?: string[][] 
 }
 
 const pageSize = 10
@@ -79,12 +86,9 @@ const PopperWithFilters: React.FC<FilterProps> = ({ onUpdate, appliedFilter, fie
     }
 
     const handleRemoveFilter = (key: number) => {
-        console.log(key)
-
         setFilters(prevFilters => {
             const newFilters = { ...prevFilters };
             delete newFilters[key];
-            console.log(newFilters)
             return newFilters;
         });
     }
@@ -168,6 +172,8 @@ const PopperWithFilters: React.FC<FilterProps> = ({ onUpdate, appliedFilter, fie
 };
 
 export default () => {
+    const navigate = useNavigate()
+
     const [projectsData, setProjectsData] = useState<ProjectData[]>([])
     const [appliedFilters, setFilters] = useState<Record<number, FilterType>>({})
     const [fields, setFields] = useState<{ label: string, id: number }[]>([])
@@ -187,8 +193,6 @@ export default () => {
         };
 
         const actionFilter = Object.entries(appliedFilters).find(([_, filter]) => Boolean(filter.field == 'action'))
-
-        console.log('called')
 
         try {
             const fields = await axiosRequest.get<string[]>(`/logs/fields?filter=action=${actionFilter ? actionFilter[1].value : '-1'}`, {
@@ -222,8 +226,6 @@ export default () => {
                     ['project-id']: selectedProject
                 }
             } as any)
-
-            console.log(logs)
 
             setLogs(logs as [])
         } catch {
@@ -274,7 +276,6 @@ export default () => {
         const proceed = async () => {
             try {
                 const projects = await axiosRequest.get<ProjectData[]>('/projects/fetch')
-                console.log(projects)
                 setProjectsData(projects)
             } catch {
                 toast.error('Непредвиденная ошибка')
@@ -297,7 +298,6 @@ export default () => {
     }
 
     const handleFind = () => {
-        if (!sender) return;
         if (!selectedProject) return;
 
         const filterList: string[] = []
@@ -310,13 +310,13 @@ export default () => {
 
         const proceed = async () => {
             try {
-                const logs = await axiosRequest.get(`logs/get?filter=sender=${sender},${filterList.join(',')}&page=1&limit=${pageSize}`, {
+                const logs = await axiosRequest.get(`logs/get?filter=${(sender ? `sender=${sender},` : '')}${filterList.join(',')}&page=1&limit=${pageSize}`, {
                     headers: {
                         ['project-id']: selectedProject
                     }
                 } as any)
 
-                const logsCount = await axiosRequest.get<number>(`logs/count?filter=sender=${sender},${filterList.join(',')}`, {
+                const logsCount = await axiosRequest.get<number>(`logs/count?filter=${(sender ? `sender=${sender},` : '')}${filterList.join(',')}`, {
                     headers: {
                         ['project-id']: selectedProject
                     }
@@ -335,25 +335,33 @@ export default () => {
     return (
         <Box width={1} padding={3} flexGrow={1} display={'flex'} flexDirection={'column'}>
             <Stack direction={"row"} alignItems={'center'} mb={5} width={1}>
-                <Typography variant="h4" mr={2}>Аудит логов - </Typography>
-                <Autocomplete disablePortal sx={{ width: '20%' }} onChange={(_, option) => {
-                    setSelectedProject(option?._id)
-                }} options={projectsData} renderInput={(params) => {
-                    return <TextField {...params} label="Проект" />
-                }}
-
-                    getOptionLabel={(option) => option.name || ''}
-
-                    renderOption={(props, option) => {
-                        const { key, ...optionProps } = props
-
-                        return (
-                            <Box component={'li'} {...optionProps}>
-                                {option.name}
-                            </Box>
-                        )
+                <Box display={'flex'} flexGrow={1}>
+                    <Typography variant="h4" mr={2}>Аудит логов - </Typography>
+                    <Autocomplete disablePortal sx={{ width: '20%' }} onChange={(_, option) => {
+                        setSelectedProject(option?._id)
+                    }} options={projectsData} renderInput={(params) => {
+                        return <TextField {...params} label="Проект" />
                     }}
-                />
+
+                        getOptionLabel={(option) => option.name || ''}
+
+                        renderOption={(props, option) => {
+                            const { key, ...optionProps } = props
+
+                            return (
+                                <Box component={'li'} {...optionProps}>
+                                    {option.name}
+                                </Box>
+                            )
+                        }}
+                    />
+                </Box>
+
+                <Button color="info" variant="contained" size="large" onClick={() => {
+                    navigate(`/formatters?project=${selectedProject}`)
+                }}>
+                    Форматирование
+                </Button>
             </Stack>
 
             <Paper sx={{ p: 2 }}>
@@ -378,8 +386,28 @@ export default () => {
 
             <Stack alignItems={'center'} direction={'column'} mt={2} spacing={1}>
                 {
-                    logs.map(() => {
-                        return <LogLine />
+                    logs.map((log: LogLineType) => {
+                        return (
+                            <Paper elevation={5} sx={{
+                                width: 1,
+                            }}>
+                                <Grid container display={'flex'} alignItems={'center'}>
+                                    <Grid item xs={1} sx={{p: 2}}>
+                                        <Typography variant="body1">
+                                            {new Date(log.timestamp).toLocaleDateString()}
+                                        </Typography>
+                                    </Grid>
+
+                                    <Grid item>
+                                        <Divider orientation="vertical" flexItem/>
+                                    </Grid>
+
+                                    <Grid item sx={{p: 2}}>
+                                        {<StaticTextDisplay template={log.string ?? 'Не найдено'} values={log.params || []}/>}
+                                    </Grid>
+                                </Grid>
+                            </Paper>
+                        )
                     })
                 }
             </Stack>
