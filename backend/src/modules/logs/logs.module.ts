@@ -5,9 +5,10 @@ import { LogSchema } from './schemas/logs.schema';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ProjectsModule } from '../projects/projects.module';
 import { AuthModule } from '../auth/auth.module';
+import { FormatsModule } from '../formats/formats.module';
 
 @Module({
-  imports: [MongooseModule.forFeature([{name: 'Log', schema: LogSchema}]), ProjectsModule, AuthModule],
+  imports: [MongooseModule.forFeature([{name: 'Log', schema: LogSchema}]), ProjectsModule, AuthModule, FormatsModule],
   providers: [LogsService],
   controllers: [LogsController]
 })

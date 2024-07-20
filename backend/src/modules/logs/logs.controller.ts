@@ -36,7 +36,6 @@ export class LogsController {
     @Get('/get')
     @UseGuards(AuthGuard, ProjectGuard)
     async getLogs(@Request() request, @Query('filter') filterString: string, @Query('limit') limit: string, @Query('page') page: string) {
-        console.log(filterString)
         const projectId: string = request.projectId
         const limitNumber = parseInt(limit)
         const pageNumber = parseInt(page)

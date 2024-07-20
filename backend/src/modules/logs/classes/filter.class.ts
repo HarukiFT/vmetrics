@@ -68,9 +68,9 @@ export class Filter {
             const key = pair[0]
             const value = pair[1]
 
-            const formattedValue = await this.parseValue(value)
+            if (!key || !value || value === 'undefined') continue;
 
-            if (key === undefined || formattedValue === undefined) continue;
+            const formattedValue = await this.parseValue(value)
 
             query[key] = {[operation]: formattedValue}
        }

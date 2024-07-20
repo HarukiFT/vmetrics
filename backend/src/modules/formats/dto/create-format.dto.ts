@@ -1,4 +1,4 @@
-import { IsString, ValidateNested } from 'class-validator';
+import { IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
 interface FormatTableValue {
@@ -12,7 +12,8 @@ export class CreateFormatDto {
     @IsString()
     format: string;
 
+    @IsOptional()
     @ValidateNested({ each: true })
     @Type(() => Map)
-    formatTable: Map<string, FormatTableValue>;
+    formatTable?: Map<string, FormatTableValue>;
 }
