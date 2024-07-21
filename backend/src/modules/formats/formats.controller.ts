@@ -16,11 +16,11 @@ export class FormatsController {
         await this.formatsService.createFormat(projectId, createFormatDto)
     }
 
-    @Get('/test')
+    @Get('/fetch')
     @UseGuards(AuthGuard, ProjectGuard)
-    async getFormat(@Request() request, @Query('action') action: string) {
+    async getFormat(@Request() request) {
         const projectId = request.projectId
 
-        return await this.formatsService.getFormatLog(projectId, action, {})
+        return await this.formatsService.fetchFormats(projectId)
     }
 }

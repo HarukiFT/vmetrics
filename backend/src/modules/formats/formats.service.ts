@@ -68,6 +68,14 @@ export class FormatsService {
         }
     }
 
+    async fetchFormats(projectId: string) {
+        const projectOID = mongoose.Types.ObjectId.createFromHexString(projectId)
+
+        return await this.formatModel.find({
+            project: projectOID
+        })
+    }
+
     async createFormat(projectId: string, createFormatDto: CreateFormatDto) {
         const projectOID = mongoose.Types.ObjectId.createFromHexString(projectId)
 

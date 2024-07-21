@@ -36,6 +36,8 @@ export class AuthController {
         const userId = request.user._id
         const userDocument = await this.usersService.getUserById(userId)
 
+        if (!userDocument) { return }
+
         return {
             _id: userDocument.id,
             username: userDocument.username
