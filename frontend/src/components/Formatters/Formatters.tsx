@@ -216,9 +216,9 @@ export default () => {
             {
               formats.filter((_, index) => (index >= (page - 1) * pageSize) && (index < page * pageSize)).map(format => {
                 return (
-                  <Paper elevation={5} sx={{ p: 2, width: 1 }} key={format._id}>
+                  <Paper elevation={5} sx={{ p: 1, width: 1 }} key={format._id}>
                     <Grid container display={'flex'} alignItems={'center'}>
-                      <Grid item xs={1} sx={{ p: 2 }}>
+                      <Grid item xs={1} sx={{ p: 1 }}>
                         <Typography variant="h6" fontWeight={600} letterSpacing={.25}>
                           {format.action}
                         </Typography>
@@ -242,7 +242,7 @@ export default () => {
       </Stack>
 
       <Pagination size="large" variant="outlined" shape="rounded" onChange={(_, page) => { setPage(page) }} count={Math.ceil(formats.length / pageSize)} page={page} sx={{
-        position: 'absolute',
+        position: 'fixed',
         left: '50%',
         bottom: '1em',
         transform: 'translateX(-50%)'
