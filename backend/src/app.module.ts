@@ -9,11 +9,12 @@ import { JwtModule } from '@nestjs/jwt';
 import { ProjectsModule } from './modules/projects/projects.module';
 import { LogsModule } from './modules/logs/logs.module';
 import { FormatsModule } from './modules/formats/formats.module';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [ConfigModule.forRoot({
-    isGlobal: true
-  }), MongooseModule.forRootAsync({
+    isGlobal: true,
+  }), CacheModule.register({ isGlobal: true }), MongooseModule.forRootAsync({
     imports: [ConfigModule],
     inject: [ConfigService],
     useFactory: async (configService: ConfigService) => ({

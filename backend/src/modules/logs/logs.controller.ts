@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, Req, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Post, Query, Req, Request, UseGuards } from '@nestjs/common';
 import { CreateLogDto } from './dto/create-log.dto';
 import { LogsService } from './logs.service';
 import { ApiGuard } from '../projects/guards/api.guard';
@@ -6,10 +6,12 @@ import { CreateLogsDto } from './dto/create-logs.dto';
 import { Filter } from './classes/filter.class';
 import { ProjectGuard } from '../projects/guards/project.guard';
 import { AuthGuard } from '../auth/guards/auth.guard';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Controller('logs')
 export class LogsController {
-    constructor(private readonly logsService: LogsService) {}
+    constructor(private readonly logsService: LogsService, @Inject(CACHE_MANAGER) private cacheService: Cache) {}
 
     @Post('/create')
     @UseGuards(ApiGuard)
@@ -39,7 +41,7 @@ export class LogsController {
         const projectId: string = request.projectId
         const limitNumber = parseInt(limit)
         const pageNumber = parseInt(page)
-        const filter = await new Filter(filterString || '').toQuery()
+        const filter = await new Filter(filterString || '', this.cacheService).toQuery()
 
         return await this.logsService.getLogs(projectId, filter, limitNumber, pageNumber)
     }
@@ -48,7 +50,7 @@ export class LogsController {
     @UseGuards(AuthGuard, ProjectGuard)
     async countLogs(@Request() request, @Query('filter') filterString: string) {
         const projectId: string = request.projectId
-        const filter = await new Filter(filterString || '').toQuery()
+        const filter = await new Filter(filterString || '', this.cacheService).toQuery()
 
         return await this.logsService.countLogs(projectId, filter)
     }
@@ -57,7 +59,7 @@ export class LogsController {
     @UseGuards(AuthGuard, ProjectGuard)
     async getFields(@Request() request, @Query('filter') filterString: string) {
         const projectId: string = request.projectId
-        const filter = await new Filter(filterString || '').toQuery()
+        const filter = await new Filter(filterString || '', this.cacheService).toQuery()
 
         return await this.logsService.getLogsFields(projectId, filter)
     }

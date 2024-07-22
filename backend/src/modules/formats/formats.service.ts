@@ -1,19 +1,28 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateFormatDto } from './dto/create-format.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Format, FormatDocument } from './schemas/format.schema';
 import mongoose, { Model } from 'mongoose';
 import axios from 'axios';
+import { Cache } from 'cache-manager';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 const formatRegex = /@(\w+)\/(\w+)/g;
 const formatsFn = {
-    player: async (value: number | undefined) => {
+    player: async (value: number | undefined, cacheService: Cache) => {
         if (!value) {
             return 'пусто'
         }
 
         try {
+            const existUsername = await cacheService.get(value.toString())
+            if (existUsername) {
+                return existUsername
+            }
+
             const result = await axios.get(`https://users.roblox.com/v1/users/${value}`)
+
+            cacheService.set(value.toString(), result.data.name, 3600)
             return (result.data.name)
         } catch (err) {
             return 'пусто'
@@ -30,7 +39,7 @@ const formatsFn = {
 
 @Injectable()
 export class FormatsService {
-    constructor(@InjectModel('Format') private formatModel: Model<Format>) { }
+    constructor(@InjectModel('Format') private formatModel: Model<Format>, @Inject(CACHE_MANAGER) private cacheService: Cache){}
 
     async getFormatLog(projectId: string, action: string, payload: Record<string, any>) {
         const projectOID = mongoose.Types.ObjectId.createFromHexString(projectId)
@@ -57,7 +66,7 @@ export class FormatsService {
                 const value = payload[pair[1]]
 
                 if (key && key in formatsFn) {
-                    pair[1] = await formatsFn[key](value)
+                    pair[1] = await formatsFn[key](value, this.cacheService)
                 } else {
                     pair[1] = `${value ?? ''}`
                 }

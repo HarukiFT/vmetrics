@@ -1,4 +1,5 @@
 import axios from "axios"
+import { Cache } from "cache-manager";
 import { IsNumberString } from "class-validator"
 
 const formatRegexp = /@(\w+)\/(.+)/;
@@ -7,8 +8,13 @@ const formatters = {
         return new Date(value)
     },
 
-    player: async (value: string) => {
+    player: async (value: string, cacheService: Cache) => {
         try {
+            const existId = await cacheService.get(value)
+            if (existId) {
+                return existId
+            }
+            
             const result = await axios.post('https://users.roblox.com/v1/usernames/users', {
                 usernames: [
                     value
@@ -16,6 +22,7 @@ const formatters = {
             })
 
             if (result.data.data.length === 0) { return -1 }
+            cacheService.set(value, result.data.data[0].id, 3600)
             return (result.data.data[0].id)
         } catch {
             return -1
@@ -30,7 +37,7 @@ const compares = {
 }
 
 export class Filter {
-    constructor(private filterString: string) {}
+    constructor(private filterString: string, private cacheService: Cache) {}
 
     async parseValue(value: string) {
         if (isNaN(parseFloat(value))) {
@@ -44,7 +51,7 @@ export class Filter {
             const valueToFormat = match[2]
 
             if (formatters[formatType]) {
-                return await formatters[formatType](valueToFormat)
+                return await formatters[formatType](valueToFormat, this.cacheService)
             }
             
             return valueToFormat
