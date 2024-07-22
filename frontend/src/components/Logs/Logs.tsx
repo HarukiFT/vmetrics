@@ -394,15 +394,13 @@ export default () => {
                                 width: 1,
                             }}>
                                 <Grid container display={'flex'} alignItems={'center'}>
-                                    <Grid item xs={1} sx={{p: 1}}>
+                                    <Grid item sx={{p: 1}}>
                                         <Typography variant="body1">
-                                            {new Date(log.timestamp).toLocaleDateString()}
+                                            {new Date(log.timestamp).toLocaleString()}
                                         </Typography>
                                     </Grid>
 
-                                    <Grid item>
-                                        <Divider orientation="vertical" flexItem/>
-                                    </Grid>
+                                    <Divider orientation="vertical" flexItem/>
 
                                     <Grid item sx={{p: 1}}>
                                         {<StaticTextDisplay template={log.string ?? 'Не найдено'} values={log.params || []}/>}
