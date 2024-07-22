@@ -357,7 +357,9 @@ export default () => {
                     />
                 </Box>
 
-                <Button color="info" variant="contained" size="large" onClick={() => {
+                <Button color="info" variant="contained" size="large" sx={{
+                    display: !selectedProject ? 'none' : 'block' 
+                }} onClick={() => {
                     navigate(`/formatters?project=${selectedProject}`)
                 }}>
                     Форматирование

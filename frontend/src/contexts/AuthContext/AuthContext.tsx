@@ -21,7 +21,11 @@ const AuthContextProvider = ({children}: {children: JSX.Element[] | JSX.Element}
         localStorage.setItem('AUTH_TOKEN', token)
 
         axiosRequest.get<UserData>('/auth/info').then((value) => {
-            setUserData(value)
+            if (!value) {
+                setToken('')
+            } else {
+                setUserData(value)
+            }
         }).catch(err => {
             if (err.response.status == 401) {
                 setToken('')
