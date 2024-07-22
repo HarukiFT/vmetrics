@@ -7,16 +7,23 @@ import axios from 'axios';
 
 const formatRegex = /@(\w+)\/(\w+)/g;
 const formatsFn = {
-    player: async (value: number) => {
+    player: async (value: number | undefined) => {
+        if (!value) {
+            return 'пусто'
+        }
+
         try {
             const result = await axios.get(`https://users.roblox.com/v1/users/${value}`)
             return (result.data.name)
         } catch (err) {
-            return 'null'
+            return 'пусто'
         }
     },
 
-    string: (value: number | string) => {
+    string: (value: number | string | undefined) => {
+        if (!value) {
+            return 'пусто'
+        }
         return `${value}`
     }
 }
@@ -49,7 +56,7 @@ export class FormatsService {
                 const key = pair[0].substring(1)
                 const value = payload[pair[1]]
 
-                if (key && value && key in formatsFn) {
+                if (key && key in formatsFn) {
                     pair[1] = await formatsFn[key](value)
                 } else {
                     pair[1] = `${value ?? ''}`
@@ -73,6 +80,8 @@ export class FormatsService {
 
         return await this.formatModel.find({
             project: projectOID
+        }).sort({
+            action: 1
         })
     }
 

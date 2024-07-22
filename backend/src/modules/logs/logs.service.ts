@@ -13,8 +13,6 @@ export class LogsService {
     async getLogs(projectId: string, filter: Record<string, any>, limit: number, page: number) {
         const projectOID = mongoose.Types.ObjectId.createFromHexString(projectId)
 
-        console.log(filter)
-
         const logs = await this.logModel.find({
             ...filter,
             project: projectOID
