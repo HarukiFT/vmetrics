@@ -39,7 +39,7 @@ export default () => {
 
     return (
         <Box position={'relative'} width={1} p={3} flexGrow={1} display={"flex"} flexDirection={'column'} justifyContent={'center'} alignItems={'center'}>
-            <Container maxWidth="lg">
+            <Container maxWidth="xl">
                 <Typography textAlign={'left'} mb={2} variant="h4" color={'primary.light'}>
                     Проекты
                 </Typography>

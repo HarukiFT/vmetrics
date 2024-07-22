@@ -28,7 +28,7 @@ interface LogLineType {
     params?: string[][] 
 }
 
-const pageSize = 10
+const pageSize = 12
 
 const comparesOptions = [
     { label: '=', id: 1 },
@@ -394,7 +394,7 @@ export default () => {
                                 width: 1,
                             }}>
                                 <Grid container display={'flex'} alignItems={'center'}>
-                                    <Grid item xs={1} sx={{p: 2}}>
+                                    <Grid item xs={1} sx={{p: 1}}>
                                         <Typography variant="body1">
                                             {new Date(log.timestamp).toLocaleDateString()}
                                         </Typography>
@@ -404,7 +404,7 @@ export default () => {
                                         <Divider orientation="vertical" flexItem/>
                                     </Grid>
 
-                                    <Grid item sx={{p: 2}}>
+                                    <Grid item sx={{p: 1}}>
                                         {<StaticTextDisplay template={log.string ?? 'Не найдено'} values={log.params || []}/>}
                                     </Grid>
                                 </Grid>
@@ -415,7 +415,7 @@ export default () => {
             </Stack>
 
             <Pagination size="large" variant="outlined" shape="rounded" onChange={(_, page) => { setPage(page) }} count={Math.ceil(logsCount / pageSize)} page={page} sx={{
-                position: 'absolute',
+                position: 'fixed',
                 left: '50%',
                 bottom: '1em',
                 transform: 'translateX(-50%)'

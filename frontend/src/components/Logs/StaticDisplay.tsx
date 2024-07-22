@@ -14,43 +14,36 @@ const StyledSpan = styled('span')<StyledCSSProps>(({ theme, type }) => ({
   padding: `${theme.spacing(.5)} ${theme.spacing(.5)}`
 }))
 
-const StaticTextDisplay: React.FC<{ template: string; values: string[][] }> = ({ template, values }) => {
-  const regex = /\{(\d+)\}|\s+/g
-  const splitted = template.split(regex).filter(Boolean).map((str, index) => {
+const StaticTextDisplay: React.FC<{ template: string, values: string[][] }> = ({ template, values }) => {
+  const regex = /\{(\d+)\}/g
+  const parts = template.split(regex)
+  const result: (string | JSX.Element)[] = []
+
+  let valueIndex = 0
+
+  parts.forEach((part, index) => {
     if (index % 2 === 0) {
-      return ''
-    } else if (str.match(/\d+/)) {
-      return ''
+      result.push(part)
+    } else {
+      const valuePair = values[parseInt(part, 10)]
+      if (valuePair) {
+        const [matchType, matchField] = valuePair
+        result.push(
+          <StyledSpan key={valueIndex} type={matchType.substring(1)}>
+            {matchField}
+          </StyledSpan>
+        )
+        valueIndex++
+      }
     }
-    return str
-  });
-  const subs: string[][] = []
-
-  const matchRegex = /\{(\d+)\}/g
-  let match
-
-  while ((match = matchRegex.exec(template)) !== null) {
-    const number = parseInt(match[1])
-    subs.push(values[number])
-}
+  })
 
   return (
-    <Typography variant='body1' letterSpacing={.1}>
-      {
-        splitted.map((part, index) => {
-          console.log(subs[index])
-          return (
-            <>
-              {`${part} `}
-              {subs[index] && <StyledSpan type={subs[index][0].substring(1)}>{subs[index][1]}</StyledSpan>}
-              {subs[index] && ` `}
-            </>
-          )
-        })  
-      }
+    <Typography variant='body1' letterSpacing={0.1}>
+      {result}
     </Typography>
-  );
-};
+  )
+}
 
 
-export default StaticTextDisplay;
+export default StaticTextDisplay

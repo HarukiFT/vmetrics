@@ -9,45 +9,53 @@ interface StyledCSSProps {
 
 const StyledSpan = styled('span')<StyledCSSProps>(({ theme, type }) => ({
   display: 'inline-block',
-  backgroundColor:  type === 'player' ? theme.palette.secondary.dark : theme.palette.primary.dark,
+  backgroundColor: type === 'player' ? theme.palette.secondary.dark : theme.palette.primary.dark,
   fontWeight: 500,
   padding: `${theme.spacing(.5)} ${theme.spacing(.5)}`
 }))
 
-const StaticTextDisplay: React.FC<{ template: string; values: string[][] }> = ({ template, values }) => {
-  const regex = /\{(\d+)\}|\s+/g
-  const splitted = template.split(regex).filter(Boolean).map((str, index) => {
-    if (index % 2 === 0) {
-      return ''
-    } else if (str.match(/\d+/)) {
-      return ''
+const StaticTextDisplay: React.FC<{ template: string }> = ({ template }) => {
+  const regex = /(@\w+\/\w+)/g;
+  const parts: string[] = [];
+  const subs: string[][] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = regex.exec(template)) !== null) {
+    // Добавляем часть текста до найденного шаблона
+    if (match.index > lastIndex) {
+      parts.push(template.substring(lastIndex, match.index));
     }
-    return str
-  });
-  const subs: string[][] = []
+    // Добавляем найденный шаблон в части
+    parts.push(match[0]);
+    // Разделяем найденный шаблон и добавляем в subs
+    const splittedMatch = match[0].split('/');
+    subs.push([splittedMatch[0], splittedMatch[1]]);
+    lastIndex = regex.lastIndex;
+  }
 
-  const matchRegex = /\{(\d+)\}/g
-  let match
-
-  while ((match = matchRegex.exec(template)) !== null) {
-    const number = parseInt(match[1])
-    subs.push(values[number])
-}
+  // Добавляем оставшуюся часть текста после последнего шаблона
+  if (lastIndex < template.length) {
+    parts.push(template.substring(lastIndex));
+  }
 
   return (
-    <Typography variant='body1' letterSpacing={.1}>
-      {
-        splitted.map((part, index) => {
-          console.log(subs[index])
+    <Typography variant='body1' letterSpacing={0.25}>
+      {parts.map((part, index) => {
+        if (subs.length > 0 && part === `${subs[0][0]}/${subs[0][1]}`) {
+          const [matchType, matchField] = subs.shift()!;
           return (
-            <>
-              {`${part} `}
-              {subs[index] && <StyledSpan type={subs[index][0].substring(1)}>{subs[index][1]}</StyledSpan>}
-              {subs[index] && ` `}
-            </>
-          )
-        })  
-      }
+            <StyledSpan key={index} type={matchType.substring(1)}>
+              {matchType}/{matchField}
+            </StyledSpan>
+          );
+        }
+        return (
+          <React.Fragment key={index}>
+            {part}
+          </React.Fragment>
+        );
+      })}
     </Typography>
   );
 };
