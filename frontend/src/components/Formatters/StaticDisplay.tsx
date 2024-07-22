@@ -1,6 +1,5 @@
 import React from 'react';
 import { styled, useTheme } from '@mui/material/styles';
-import Box from '@mui/material/Box';
 import { Typography } from '@mui/material';
 
 interface StyledCSSProps {
@@ -15,50 +14,46 @@ const StyledSpan = styled('span')<StyledCSSProps>(({ theme, type }) => ({
 }))
 
 const StaticTextDisplay: React.FC<{ template: string }> = ({ template }) => {
-  const regex = /(@\w+\/\w+)/g;
-  const parts: string[] = [];
-  const subs: string[][] = [];
-  let lastIndex = 0;
-  let match: RegExpExecArray | null;
+  const regex = /(@\w+\/\w+)/g
+  const parts: string[] = []
+  const subs: string[][] = []
+  let lastIndex = 0
+  let match: RegExpExecArray | null
 
   while ((match = regex.exec(template)) !== null) {
-    // Добавляем часть текста до найденного шаблона
     if (match.index > lastIndex) {
-      parts.push(template.substring(lastIndex, match.index));
+      parts.push(template.substring(lastIndex, match.index))
     }
-    // Добавляем найденный шаблон в части
-    parts.push(match[0]);
-    // Разделяем найденный шаблон и добавляем в subs
-    const splittedMatch = match[0].split('/');
-    subs.push([splittedMatch[0], splittedMatch[1]]);
-    lastIndex = regex.lastIndex;
+    parts.push(match[0])
+    const splittedMatch = match[0].split('/')
+    subs.push([splittedMatch[0], splittedMatch[1]])
+    lastIndex = regex.lastIndex
   }
 
-  // Добавляем оставшуюся часть текста после последнего шаблона
   if (lastIndex < template.length) {
-    parts.push(template.substring(lastIndex));
+    parts.push(template.substring(lastIndex))
   }
 
   return (
     <Typography variant='body1' letterSpacing={0.25}>
       {parts.map((part, index) => {
         if (subs.length > 0 && part === `${subs[0][0]}/${subs[0][1]}`) {
-          const [matchType, matchField] = subs.shift()!;
+          const [matchType, matchField] = subs.shift()!
           return (
             <StyledSpan key={index} type={matchType.substring(1)}>
               {matchType}/{matchField}
             </StyledSpan>
-          );
+          )
         }
         return (
           <React.Fragment key={index}>
             {part}
           </React.Fragment>
-        );
+        )
       })}
     </Typography>
-  );
-};
+  )
+}
 
 
-export default StaticTextDisplay;
+export default StaticTextDisplay
