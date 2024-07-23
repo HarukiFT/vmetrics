@@ -18,7 +18,8 @@ import { CacheModule } from '@nestjs/cache-manager';
     imports: [ConfigModule],
     inject: [ConfigService],
     useFactory: async (configService: ConfigService) => ({
-      uri: configService.get<string>('CONNECTION_STRING')
+      uri: configService.get<string>('CONNECTION_STRING'),
+      dbName: 'vmetrics'
     })
   }), UsersModule, AuthModule, ProjectsModule, LogsModule, FormatsModule],
   controllers: [AppController],
