@@ -3,6 +3,7 @@ import { ProjectsService } from './projects.service';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { ProjectGuard } from './guards/project.guard';
+import { ApiGuard } from './guards/api.guard';
 
 @Controller('projects')
 export class ProjectsController {
@@ -21,6 +22,10 @@ export class ProjectsController {
 
         return await this.projectsService.getProject(projectId)
     }
+
+    @Get('/isvalid')
+    @UseGuards(ApiGuard)
+    async isValid() {  }
 
     @Get('/fetch')
     @UseGuards(AuthGuard)
