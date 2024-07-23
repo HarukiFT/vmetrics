@@ -23,6 +23,11 @@ export class ProjectsController {
         return await this.projectsService.getProject(projectId)
     }
 
+    @Get('/debug')
+    async debug(@Request() request: any) {
+        return request.headers
+    }
+
     @Get('/isvalid')
     @UseGuards(ApiGuard)
     async isValid() {  }
