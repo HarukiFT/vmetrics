@@ -22,7 +22,7 @@ const formatters = {
             })
 
             if (result.data.data.length === 0) { return -1 }
-            cacheService.set(value, result.data.data[0].id, 3600)
+            await cacheService.set(value, result.data.data[0].id, 1000 * 60 * 15)
             return (result.data.data[0].id)
         } catch {
             return -1

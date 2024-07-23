@@ -22,3 +22,6 @@ export class Format {
 
 export type FormatDocument = Format & Document
 export const FormatSchema = SchemaFactory.createForClass(Format)
+
+FormatSchema.index({project: 1})
+FormatSchema.index({action: 1})

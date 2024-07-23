@@ -16,7 +16,7 @@ export class LogsService {
         const logs = await this.logModel.find({
             ...filter,
             project: projectOID
-        }).skip(limit * (page - 1)).limit(limit)
+        }).sort({timestamp: -1}).skip(limit * (page - 1)).limit(limit)
 
         const resposneDocuments = []
 

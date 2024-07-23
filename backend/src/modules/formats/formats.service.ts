@@ -14,15 +14,19 @@ const formatsFn = {
             return 'пусто'
         }
 
+        if (value === 0) {
+            return 'сервер'
+        }
+
         try {
-            const existUsername = await cacheService.get(value.toString())
+            const existUsername = await cacheService.get<string>(value.toString())
             if (existUsername) {
                 return existUsername
             }
 
             const result = await axios.get(`https://users.roblox.com/v1/users/${value}`)
 
-            cacheService.set(value.toString(), result.data.name, 3600)
+            await cacheService.set(value.toString(), result.data.name, 1000 * 60 * 15)
             return (result.data.name)
         } catch (err) {
             return 'пусто'
@@ -44,10 +48,14 @@ export class FormatsService {
     async getFormatLog(projectId: string, action: string, payload: Record<string, any>) {
         const projectOID = mongoose.Types.ObjectId.createFromHexString(projectId)
 
-        const formatDocument = await this.formatModel.findOne({
+        const formatDocument = await this.cacheService.get(`${projectOID.toString()}-${action}`) as FormatDocument ?? await this.formatModel.findOne({
             project: projectOID,
             action: action
         })
+
+        if (!(await this.cacheService.get(`${projectOID.toString()}-${action}`))) {
+            await this.cacheService.set(`${projectOID.toString()}-${action}`, formatDocument, 1000 * 60 * 15)
+        }
 
         if (!formatDocument) {
             return
@@ -101,6 +109,8 @@ export class FormatsService {
             project: projectOID,
             action: createFormatDto.action
         }).exec()
+
+        await this.cacheService.del(`${projectOID.toString()}-${createFormatDto.action}`)
 
         return await new this.formatModel({
             format: createFormatDto.format,
