@@ -31,6 +31,12 @@ interface LogLineType {
 
 const pageSize = 12
 
+const ignoreFields = [
+    'project',
+    '__v',
+    'sender'
+]
+
 const comparesOptions = [
     { label: '=', id: 1 },
     { label: '>', id: 2 },
@@ -53,7 +59,9 @@ const PopperWithFilters: React.FC<FilterProps> = ({ onUpdate, appliedFilter, fie
     const [open, setOpen] = useState(false)
 
     const getFreeFields = () => {
-        return fields.filter(field => {
+        return fields.filter((field) => {
+            return !ignoreFields.find((ignore) => ignore === field.label)
+        }).filter(field => {
             return !Object.entries(filters).find(([_, filter]) => {
                 return (filter.field == field.label)
             })
@@ -375,7 +383,7 @@ export default () => {
                 </Button>
             </Stack>
 
-            <Paper sx={{ p: 2 }}>
+            <Paper sx={{ px: 2, py: 1 }}>
                 <Grid container spacing={2} alignItems={'center'}>
                     <Grid item xs={4}>
                         <TextField size="medium" autoComplete="off" onChange={handleSenderChange} fullWidth label={isNaN(parseInt(sender ?? '0')) ? 'Имя инициатора' : 'ID инициатора'} placeholder="Целевой инициатор"></TextField>

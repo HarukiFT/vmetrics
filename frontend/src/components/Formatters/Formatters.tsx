@@ -148,10 +148,6 @@ export default () => {
     })
   }, [lastUpdate])
 
-  useEffect(() => {
-    console.log(formatField, actionField)
-  },[formatField, actionField])
-
   const handleFormatChange = (content: string) => {
     setFormatField(content)
   }
