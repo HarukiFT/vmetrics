@@ -7,6 +7,17 @@ import axios from 'axios';
 import { Cache } from 'cache-manager';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
+const ignoreFields = [
+    'action',
+    'project',
+    '__v',
+    '_id',
+    'timestamp',
+    '_doc',
+    '$__',
+    '$isNew'
+]
+
 const formatRegex = /@(\w+)\/(\w+)/g;
 const formatsFn = {
     player: async (value: number | undefined, cacheService: Cache) => {
@@ -58,7 +69,26 @@ export class FormatsService {
         }
 
         if (!formatDocument) {
-            return
+            let resultString = `Нет формат строки для {0} / `
+            const keys = Object.keys(payload._doc).filter((value) => !ignoreFields.find((field) => field === value))
+            const params = [['@action', action]]
+
+            for (let i = 0; i < keys.length; i++) {
+                resultString += `{${params.length}}=`
+                params.push(['@field', keys[i]])
+                resultString += `{${params.length}}; `
+
+                if (keys[i] == 'sender') {
+                    params.push(['@player', await formatsFn['player'](payload[keys[i]], this.cacheService)])
+                } else {
+                    params.push(['@placeholder', payload[keys[i]]])
+                }
+            }
+
+            return {
+                string: resultString,
+                params: params
+            }
         }
 
         const matches = formatDocument.format.match(formatRegex);
@@ -79,6 +109,8 @@ export class FormatsService {
                     pair[1] = `${value ?? ''}`
                 }
             }
+
+            console.log(resultString, resultArray)
 
             return {
                 string: resultString,
