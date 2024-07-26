@@ -20,6 +20,7 @@ interface FilterProps {
     appliedFilter: Record<number, FilterType>
     fields: { label: string, id: number }[]
     onUpdate: (filters: Record<number, FilterType>) => void
+    actions: {label: string, id: number}[]
 }
 
 interface LogLineType {
@@ -44,7 +45,7 @@ const LogLine = () => {
     )
 }
 
-const PopperWithFilters: React.FC<FilterProps> = ({ onUpdate, appliedFilter, fields }) => {
+const PopperWithFilters: React.FC<FilterProps> = ({ onUpdate, appliedFilter, fields, actions }) => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLButtonElement>(null)
     const anchorRef = useRef<HTMLButtonElement>(null)
 
@@ -153,11 +154,19 @@ const PopperWithFilters: React.FC<FilterProps> = ({ onUpdate, appliedFilter, fie
                                                     return <TextField label={'Поле'} {...params}></TextField>
                                                 }} />
 
-                                                <Autocomplete key={'test_key'} size="small" sx={{ width: '20%' }} value={comparesOptions.find((option) => option.label == filters[filterId].compare)} options={comparesOptions} onChange={handleChangeParam(filterId, 'compare')} renderInput={function (params: AutocompleteRenderInputParams): ReactNode {
+                                                <Autocomplete size="small" sx={{ width: '20%' }} value={comparesOptions.find((option) => option.label == filters[filterId].compare)} options={comparesOptions} onChange={handleChangeParam(filterId, 'compare')} renderInput={(params: AutocompleteRenderInputParams): ReactNode => {
                                                     return <TextField label={'Сравнение'} {...params}></TextField>
                                                 }} />
 
-                                                <TextField onChange={handleChangeValue(filterId)} size="small" autoComplete='off' label='Значение' value={filters[filterId].value} />
+                                                {
+                                                    filters[filterId].field === 'action' ?
+                                                        <Autocomplete size="small" sx={{width: '40%'}} isOptionEqualToValue={(option) => {
+                                                            return (option.label === filters[filterId]?.value)
+                                                        }} value={actions.find((option) => option.label == filters[filterId].value)} onChange={handleChangeParam(filterId, 'value')} options={actions} renderInput={(params: AutocompleteRenderInputParams): ReactNode => {
+                                                            return <TextField label={'Событие'} {...params}></TextField>
+                                                        }}/>    
+                                                    : <TextField onChange={handleChangeValue(filterId)} size="small" autoComplete='off' label='Значение' value={filters[filterId].value} /> 
+                                                }
                                             </Stack>
                                         </>
                                     )
@@ -375,7 +384,7 @@ export default () => {
                     <Grid item flexGrow={1}>
                         <PopperWithFilters onUpdate={(filters) => {
                             setFilters(filters)
-                        }} appliedFilter={appliedFilters} fields={fields} />
+                        }} appliedFilter={appliedFilters} fields={fields} actions={actions?.map((action, index) => ({label: action, id: index})) ?? []}/>
                     </Grid>
 
                     <Grid item xs={1}>
