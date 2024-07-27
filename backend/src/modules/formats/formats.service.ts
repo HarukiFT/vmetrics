@@ -6,6 +6,7 @@ import mongoose, { Model } from 'mongoose';
 import axios from 'axios';
 import { Cache } from 'cache-manager';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { RemoveFormatDto } from './dto/remove-format.dto';
 
 const ignoreFields = [
     'action',
@@ -130,6 +131,13 @@ export class FormatsService {
         }).sort({
             action: 1
         })
+    }
+
+    async removeFormat(projectId: string, removeFormatDto: RemoveFormatDto) {
+        const projectOID = mongoose.Types.ObjectId.createFromHexString(projectId)
+        const formatOID = mongoose.Types.ObjectId.createFromHexString(removeFormatDto.id)
+
+        await this.formatModel.deleteOne({project: projectOID, _id: formatOID})
     }
 
     async createFormat(projectId: string, createFormatDto: CreateFormatDto) {

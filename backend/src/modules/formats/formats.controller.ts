@@ -3,6 +3,7 @@ import { FormatsService } from './formats.service';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { ProjectGuard } from '../projects/guards/project.guard';
 import { CreateFormatDto } from './dto/create-format.dto';
+import { RemoveFormatDto } from './dto/remove-format.dto';
 
 @Controller('formats')
 export class FormatsController {
@@ -16,6 +17,14 @@ export class FormatsController {
         await this.formatsService.createFormat(projectId, createFormatDto)
     }
 
+    @Post('/remove')
+    @UseGuards(AuthGuard, ProjectGuard)
+    async removeFormat(@Request() request, @Body() removeFormatDto: RemoveFormatDto) {
+        const projectId = request.projectId
+        
+        await this.formatsService.removeFormat(projectId, removeFormatDto)
+    }
+    
     @Get('/fetch')
     @UseGuards(AuthGuard, ProjectGuard)
     async getFormat(@Request() request) {
