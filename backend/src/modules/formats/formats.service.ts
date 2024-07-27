@@ -110,8 +110,6 @@ export class FormatsService {
                 }
             }
 
-            console.log(resultString, resultArray)
-
             return {
                 string: resultString,
                 params: resultArray
