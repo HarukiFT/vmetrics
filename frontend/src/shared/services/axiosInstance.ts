@@ -1,9 +1,9 @@
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, InternalAxiosRequestConfig } from "axios";
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from "axios";
+import { toast } from "react-toastify";
 
 export interface AppAxiosRequestConfig extends AxiosRequestConfig {
-    showToast?: boolean
+    // Place for fields
 }
-
 export interface AppAxiosError extends AxiosError {
   formattedMessage?: string;
 }
@@ -23,6 +23,24 @@ axiosInstance.interceptors.request.use((config: InternalAxiosRequestConfig<any>)
   
   return config
 })
+
+axiosInstance.interceptors.response.use(
+  (response: AxiosResponse) => {
+    return response
+  },
+  (error: AxiosError) => {
+    const code = error.response?.status
+    if (code === 401) {
+      window.location.href = '/login'
+    } else if (code === 403) {
+      toast.error('Не хватает прав')
+    } else if (!code) {
+      toast.error('Ошибка подключения')
+    }
+
+    return Promise.reject(error)
+  }
+)
 
 const axiosRequest = {
   async get<T>(url: string, config?: AppAxiosRequestConfig): Promise<T> {

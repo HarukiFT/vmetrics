@@ -118,7 +118,7 @@ export default () => {
         setProjectData(projectData)
         setActions(actions)
       } catch {
-        toast.error('Непредвиденная ошибка')
+
       }
     }
 
@@ -142,7 +142,7 @@ export default () => {
         }
       }))
     }).catch(err => {
-      toast.error('Непредвиденная ошибка')
+
     }).finally(() => {
       setPage(1)
     })
@@ -178,7 +178,6 @@ export default () => {
     }).then(() => {
       toast.success('Успешно')
     }).catch(err => {
-      toast.error('Непредвиденная ошикба')
     }).finally(() => {
       setPending(false)
       setUpdate(Date.now())

@@ -5,12 +5,14 @@ export const pages = [
     {
         icon: ProjectsIcon,
         href: '/projects',
-        label: 'Проекты'
+        label: 'Проекты',
+        isProtected: true
     },
 
     {
         icon: LogsIcon,
         href: '/logs',
-        label: 'Логи'
+        label: 'Логи',
+        isProtected: true
     },
 ]

@@ -33,7 +33,7 @@ root.render(
   <>
     <AuthContextProvider>
       <RouterProvider router={router}/>
-      <ToastContainer theme='dark'/>
+      <ToastContainer theme='dark' limit={1}/>
     </AuthContextProvider>
   </>
 );

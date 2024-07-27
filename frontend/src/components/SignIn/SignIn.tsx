@@ -14,6 +14,10 @@ export default () => {
     const auth = useAuth()
     const navigate = useNavigate()
 
+    if (auth.userData) {
+        window.location.href = '/'
+    }
+
     const [fields, setFields] = useState({
         username: null,
         password: null
@@ -45,7 +49,7 @@ export default () => {
                 if (err.response.status === 400) {
                     toast.error(`Неверные данные`)
                 } else {
-                    toast.error('Непредвиденная ошибка')
+
                 }
             }
         }

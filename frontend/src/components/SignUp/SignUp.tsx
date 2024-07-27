@@ -1,8 +1,9 @@
 import { Box, Button, Grid, TextField, Typography, styled } from "@mui/material"
-import { ChangeEvent, FormEvent, FormEventHandler, useState } from "react"
+import { ChangeEvent, FormEvent, FormEventHandler, useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { toast } from "react-toastify"
 import axiosRequest from "../../shared/services/axiosInstance"
+import { useAuth } from "../../contexts/AuthContext/AuthContext"
 
 const AdditionalLink = styled(Link)((t) => ({
     color: t.theme.palette.info.main,
@@ -10,11 +11,17 @@ const AdditionalLink = styled(Link)((t) => ({
 }))
 
 export default () => {
+    const auth = useAuth()
+
     const [fields, setFields] = useState({
         username: null,
         password: null
     })
     const [isBusy, setBusy] = useState<boolean>(false)
+
+    if (auth.userData) {
+        window.location.href = '/'
+    }
 
     const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFields({

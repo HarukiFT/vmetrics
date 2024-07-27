@@ -96,7 +96,7 @@ export default () => {
                         pages.map(page => {
                             return (
                                 <ListItem>
-                                    <StyledLink to={page.href}>
+                                    <StyledLink to={page.isProtected && !userData ? '/login' : page.href}>
                                         <ListItemButton>
                                             <ListItemIcon>
                                                 <page.icon />

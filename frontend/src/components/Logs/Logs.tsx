@@ -43,14 +43,6 @@ const comparesOptions = [
     { label: '<', id: 3 }
 ]
 
-const LogLine = () => {
-    return (
-        <Paper sx={{ width: '100%', p: 1.5 }} elevation={5}>
-            <Typography variant="body1">Строка логов</Typography>
-        </Paper>
-    )
-}
-
 const PopperWithFilters: React.FC<FilterProps> = ({ onUpdate, appliedFilter, fields, actions }) => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLButtonElement>(null)
     const anchorRef = useRef<HTMLButtonElement>(null)
@@ -224,11 +216,15 @@ export default () => {
             })) : [{ label: 'action', id: 1 }])
         } catch {
             setFields([{ label: 'action', id: 1 }])
-            toast.error('Непредвиденная ошибка')
         }
     }
 
     const updateLogs = async () => {
+        if (!selectedProject) {
+            setLogs([])
+            return
+        }
+
         try {
             const filterList: string[] = []
 
@@ -237,7 +233,6 @@ export default () => {
                     filterList.push(`${filter.field}${filter.compare}${filter.value}`)
                 }
             }
-
             const logs = await axiosRequest.get(`logs/get?filter=sender=${sender},${filterList.join(',')}&page=${page}&limit=${pageSize}`, {
                 headers: {
                     ['project-id']: selectedProject
@@ -263,7 +258,6 @@ export default () => {
             } as any).then(actions => {
                 setActions(actions)
             }).catch(() => {
-                toast.error('Непредвиденная ошибка')
             })
         }
     }, [selectedProject])
@@ -295,7 +289,7 @@ export default () => {
                 const projects = await axiosRequest.get<ProjectData[]>('/projects/fetch')
                 setProjectsData(projects)
             } catch {
-                toast.error('Непредвиденная ошибка')
+
             }
         }
 
@@ -342,7 +336,7 @@ export default () => {
                 setPage(1)
                 setLogs(logs as [])
             } catch (err) {
-                toast.error('Непредвиденная ошибка')
+
             }
         }
 

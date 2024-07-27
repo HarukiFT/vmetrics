@@ -119,7 +119,7 @@ export default () => {
                 toast.success('Проект создан')
                 navigate('/projects')
             }).catch(() => {
-                toast.error('Непредвиденная ошибка')
+
             })
 
             return

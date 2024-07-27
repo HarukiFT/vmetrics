@@ -25,7 +25,7 @@ export default () => {
             } catch {
                 setProjectsData([])
 
-                toast.error('Непредвиденная ошибка')
+
             }
         }
 
