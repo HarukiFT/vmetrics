@@ -1,4 +1,4 @@
-import { Avatar, Box, Button, ClickAwayListener, Container, Divider, Drawer, Fade, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem, MenuList, Paper, Popper, SvgIconTypeMap, Toolbar, Tooltip, styled } from "@mui/material"
+import { Avatar, Box, Button, ClickAwayListener, Container, Divider, Drawer, Fade, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem, MenuList, Paper, Popper, SvgIconTypeMap, Toolbar, Tooltip, Typography, styled } from "@mui/material"
 import { Link, useNavigate } from "react-router-dom"
 import { pages } from "./Pages"
 import { OverridableComponent } from "@mui/material/OverridableComponent"
@@ -23,7 +23,7 @@ const LoginFooter = () => {
     )
 }
 
-const ProfileFooter = () => {
+const ProfileFooter: React.FC<{username: string}> = ({username}) => {
     const {setToken, userData} = useAuth()
 
     const navigate = useNavigate()
@@ -45,9 +45,9 @@ const ProfileFooter = () => {
 
     return (
         <Box width={1} px={3} display={"flex"} alignItems={'center'} justifyContent={"center"}>
-            <IconButton onClick={handleClick}>
-                <Avatar ref={anchorRef} sx={{ backgroundColor: 'primary.dark' }}></Avatar>
-            </IconButton>
+            <Button variant="outlined" color="info" onClick={handleClick} sx={{px: 4, py: 1}}>
+                <Typography ref={anchorRef} fontWeight={300}>{username}</Typography>
+            </Button>
 
             <Popper anchorEl={anchorEl} open={Boolean(anchorEl)} role={undefined} modifiers={[{
                         name: 'offset',
@@ -111,7 +111,7 @@ export default () => {
                 </List>
             </Box>
             {
-                userData ? <ProfileFooter/> : <LoginFooter/>
+                userData ? <ProfileFooter username={userData.username}/> : <LoginFooter/>
             }
         </Drawer>
     )
