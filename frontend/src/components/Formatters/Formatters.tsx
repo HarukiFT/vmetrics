@@ -1,4 +1,4 @@
-import { Autocomplete, Box, Button, Divider, Grid, Pagination, Paper, Stack, TextField, Typography, styled, useTheme } from "@mui/material"
+import { Autocomplete, Box, Button, Divider, Grid, IconButton, Pagination, Paper, Stack, TextField, Typography, styled, useTheme } from "@mui/material"
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { ProjectData } from "../Projects/Project.interface";
@@ -6,6 +6,7 @@ import axiosRequest from "../../shared/services/axiosInstance";
 import { toast } from "react-toastify";
 import { Editor, EditorState, RichUtils, CompositeDecorator, ContentBlock, ContentState } from 'draft-js';
 import 'draft-js/dist/Draft.css';
+import CloseIcon from '@mui/icons-material/Close';
 import StaticTextDisplay from "./StaticDisplay";
 interface FormatType {
   timestamp: Date,
@@ -14,7 +15,7 @@ interface FormatType {
   format: string,
   action: string,
   _id: string
-} 
+}
 
 type StrategyCallback = (start: number, end: number) => void;
 
@@ -62,7 +63,7 @@ const StyledEditorContainer = styled('div')(({ theme }) => ({
   }
 }));
 
-const FormatInput: React.FC<{onChange: (content: string) => void}> = ({onChange}) => {
+const FormatInput: React.FC<{ onChange: (content: string) => void }> = ({ onChange }) => {
   const [editorState, setEditorState] = useState(() => EditorState.createEmpty(decorator));
 
   const handleEditorChange = (state: EditorState) => {
@@ -97,7 +98,8 @@ export default () => {
   const [lastUpdate, setUpdate] = useState<number>()
   const [page, setPage] = useState<number>(1)
   const [pending, setPending] = useState<boolean>(false)
-  
+  const [isBusy, setBusy] = useState<boolean>(false)
+
   const [formatField, setFormatField] = useState<string>()
   const [actionField, setActionField] = useState<string>()
 
@@ -153,11 +155,11 @@ export default () => {
   }
 
   const handleActionChange = (_: React.SyntheticEvent, value: string | { label: string; id: number; } | null) => {
-      if (typeof(value) === 'string') {
-        setActionField(value)
-      } else {
-        setActionField(value?.label)
-      }
+    if (typeof (value) === 'string') {
+      setActionField(value)
+    } else {
+      setActionField(value?.label)
+    }
   }
 
   const handleAdd = () => {
@@ -184,6 +186,25 @@ export default () => {
     })
   }
 
+  const handleRemove = (id: string) => {
+    if (isBusy) { return }
+    setBusy(true)
+
+    axiosRequest.post('/formats/remove', {
+      id
+    }, {
+      headers: {
+        ['project-id']: projectParam
+      }
+    }).then(() => {
+      toast.success('Успешно')
+    }).catch(() => {}).finally(() => {
+      setUpdate(Date.now())
+      setBusy(false)
+    })
+    
+  }
+
   return (
     <Box width={1} padding={3} flexGrow={1} display={'flex'} flexDirection={'column'}>
       <Typography variant="h4">Формат строки для {projectData?.name}</Typography>
@@ -196,7 +217,7 @@ export default () => {
             </Grid>
 
             <Grid item xs={4}>
-              <FormatInput onChange={handleFormatChange}/>
+              <FormatInput onChange={handleFormatChange} />
             </Grid>
 
             <Grid item xs display={"flex"} justifyContent={'end'}>
@@ -208,31 +229,35 @@ export default () => {
         </Paper>
 
         <Stack direction={'column'} spacing={1} mt={2} width={1}>
-            {
-              formats.filter((_, index) => (index >= (page - 1) * pageSize) && (index < page * pageSize)).map(format => {
-                return (
-                  <Paper elevation={5} sx={{ p: 1, width: 1 }} key={format._id}>
-                    <Grid container display={'flex'} alignItems={'center'}>
-                      <Grid item xs={1} sx={{ p: 1 }}>
-                        <Typography variant="h6" fontWeight={600} letterSpacing={.25}>
-                          {format.action}
-                        </Typography>
-                      </Grid>
-
-                      <Grid item flexGrow={1}>
-                        {<StaticTextDisplay template={format.format}/>}
-                      </Grid>
-
-                      <Grid item xs={1.5} display={'flex'} justifyContent={'end'}>
-                      <Typography variant="body1" color={'grey.500'}>
-                          {format.timestamp.toLocaleString()}
-                        </Typography>
-                      </Grid>
+          {
+            formats.filter((_, index) => (index >= (page - 1) * pageSize) && (index < page * pageSize)).map(format => {
+              return (
+                <Paper elevation={5} sx={{ p: 1, width: 1 }} key={format._id}>
+                  <Grid container display={'flex'} alignItems={'center'}>
+                    <Grid item xs={1} sx={{ p: 1 }}>
+                      <Typography variant="h6" fontWeight={600} letterSpacing={.25}>
+                        {format.action}
+                      </Typography>
                     </Grid>
-                  </Paper>
-                )
-              })
-            }
+
+                    <Grid item flexGrow={1}>
+                      {<StaticTextDisplay template={format.format} />}
+                    </Grid>
+
+                    <Grid item display={'flex'} justifyContent={'end'} alignItems={'center'}>
+                      <Typography variant="body1" color={'grey.500'}>
+                        {format.timestamp.toLocaleString()}
+                      </Typography>
+
+                      <Button sx={{ml: 1}} color="error" onClick={() => {handleRemove(format._id)}}>
+                        <CloseIcon/>
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </Paper>
+              )
+            })
+          }
         </Stack>
       </Stack>
 
