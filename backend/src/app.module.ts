@@ -10,6 +10,7 @@ import { ProjectsModule } from './modules/projects/projects.module';
 import { LogsModule } from './modules/logs/logs.module';
 import { FormatsModule } from './modules/formats/formats.module';
 import { CacheModule } from '@nestjs/cache-manager';
+import { MetricsModule } from './modules/metrics/metrics.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -21,7 +22,7 @@ import { CacheModule } from '@nestjs/cache-manager';
       uri: configService.get<string>('CONNECTION_STRING'),
       dbName: 'vmetrics'
     })
-  }), UsersModule, AuthModule, ProjectsModule, LogsModule, FormatsModule],
+  }), UsersModule, AuthModule, ProjectsModule, LogsModule, FormatsModule, MetricsModule],
   controllers: [AppController],
   providers: [AppService],
 })
