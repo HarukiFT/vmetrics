@@ -13,6 +13,9 @@ import Projects from './components/Projects/Projects';
 import NewProject from './components/NewProject/NewProject';
 import Logs from './components/Logs/Logs';
 import Formatters from './components/Formatters/Formatters';
+import Metrics from './components/Metrics/Metrics';
+import NewMetric from './components/Metrics/NewMetric';
+import Profile from './components/Profile/Profile';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -26,6 +29,9 @@ const router = createBrowserRouter(createRoutesFromElements(
     <Route path="newproject" element={<NewProject/>}/>
     <Route path="logs" element={<Logs/>}/>
     <Route path="formatters" element={<Formatters/>}/>
+    <Route path="metrics" element={<Metrics/>}/>
+    <Route path="newmetric" element={<NewMetric/>}/>
+    <Route path="profile" element={<Profile/>}/>
   </Route>
 ))
 

@@ -5,6 +5,7 @@ import { OverridableComponent } from "@mui/material/OverridableComponent"
 import { useAuth } from "../../contexts/AuthContext/AuthContext"
 import { createRef, useEffect, useRef, useState } from "react"
 import ExitIcon from '@mui/icons-material/ExitToApp';
+import ProfileIcon from '@mui/icons-material/AccountCircleOutlined';
 import { toast } from "react-toastify"
 
 const StyledLink = styled(Link)((t) => ({
@@ -29,8 +30,7 @@ const ProfileFooter: React.FC<{username: string}> = ({username}) => {
     const navigate = useNavigate()
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-    const anchorRef = useRef<HTMLDivElement>(null)
-    const [tooltipOpen, setTooltipOpen] = useState(false);
+    const anchorRef = useRef<HTMLButtonElement>(null)
 
     const handleClick = () => {
         setAnchorEl(anchorEl ? null : anchorRef.current)
@@ -45,8 +45,8 @@ const ProfileFooter: React.FC<{username: string}> = ({username}) => {
 
     return (
         <Box width={1} px={3} display={"flex"} alignItems={'center'} justifyContent={"center"}>
-            <Button variant="outlined" color="info" onClick={handleClick} sx={{px: 4, py: 1}}>
-                <Typography ref={anchorRef} fontWeight={300}>{username}</Typography>
+            <Button variant="outlined" ref={anchorRef} color="info" onClick={handleClick} sx={{px: 4, py: 1}}>
+                <Typography fontWeight={300}>{username}</Typography>
             </Button>
 
             <Popper anchorEl={anchorEl} open={Boolean(anchorEl)} role={undefined} modifiers={[{
@@ -58,9 +58,16 @@ const ProfileFooter: React.FC<{username: string}> = ({username}) => {
                 {
                     ({TransitionProps}) => (
                         <Fade {...TransitionProps} timeout={350}>
-                                <Paper elevation={1} sx={{transform: 'translateX(-25%)'}}>
+                                <Paper elevation={1}>
                                     <ClickAwayListener onClickAway={() => setAnchorEl(null)}>
                                         <MenuList>
+                                            <MenuItem onClick={() => {navigate('/profile')}} key={'profile'}>
+                                                <ListItemIcon>
+                                                    <ProfileIcon/>
+                                                </ListItemIcon>
+                                                <ListItemText>Профиль</ListItemText>
+                                            </MenuItem>
+                                            <Divider/>
                                             <MenuItem onClick={handleExit} key={'exit'}>
                                                 <ListItemIcon>
                                                     <ExitIcon/>
