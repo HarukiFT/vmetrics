@@ -1,69 +1,90 @@
 import { Injectable, UseGuards } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose'
+import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { Project, ProjectDocument } from './schemas/project.schema';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { ConfigService } from '@nestjs/config';
 import { UserPayload } from 'src/shared/interfaces/user-payload.interface';
 
-export interface ProjectData { _id: string, name: string, client?: string, timestamp: string, apiKey: string}
+export interface ProjectData {
+  _id: string;
+  name: string;
+  client?: string;
+  timestamp: string;
+  apiKey: string;
+}
 
 const getApiKey = (length: number) => {
-    let result = '';
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_.';
-    const charactersLength = characters.length;
-    let counter = 0;
-    while (counter < length) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength));
-      counter += 1;
-    }
+  let result = '';
+  const characters =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_.';
+  const charactersLength = characters.length;
+  let counter = 0;
+  while (counter < length) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    counter += 1;
+  }
 
-    return result;
-}
+  return result;
+};
 
 @Injectable()
 export class ProjectsService {
-    constructor(@InjectModel('Project') private readonly projectModel: Model<ProjectDocument>, private readonly configService: ConfigService) {}
+  constructor(
+    @InjectModel('Project')
+    private readonly projectModel: Model<ProjectDocument>,
+    private readonly configService: ConfigService,
+  ) {}
 
-    async createProject(owner: UserPayload, createProjectDto: CreateProjectDto) {
-        const apiKey = getApiKey(this.configService.get<number>('API_LENGTH'))
+  async createProject(owner: UserPayload, createProjectDto: CreateProjectDto) {
+    const apiKey = getApiKey(this.configService.get<number>('API_LENGTH'));
 
-        await new this.projectModel({
-            name: createProjectDto.name,
-            apiKey: apiKey,
-            timestamp: new Date(),
-            owner: mongoose.Types.ObjectId.createFromHexString(owner._id)
-        }).save()
-    }
+    await new this.projectModel({
+      name: createProjectDto.name,
+      apiKey: apiKey,
+      timestamp: new Date(),
+      owner: mongoose.Types.ObjectId.createFromHexString(owner._id),
+    }).save();
+  }
 
-    async getProject(projectId: string): Promise<ProjectDocument | null> {
-        const projectOID = mongoose.Types.ObjectId.createFromHexString(projectId)
+  async getProject(projectId: string): Promise<ProjectDocument | null> {
+    const projectOID = mongoose.Types.ObjectId.createFromHexString(projectId);
 
-        return await this.projectModel.findById(projectOID)
-    }
+    return await this.projectModel.findById(projectOID);
+  }
 
-    async getProjectByApi(apiKey: string): Promise<ProjectDocument | null> {
-        return await this.projectModel.findOne({apiKey: apiKey})
-    }
+  async getProjectByApi(apiKey: string): Promise<ProjectDocument | null> {
+    return await this.projectModel.findOne({ apiKey: apiKey });
+  }
 
-    async fetchProjects(owner: UserPayload): Promise<ProjectData[]> {
-        const userOID = mongoose.Types.ObjectId.createFromHexString(owner._id)
+  async fetchProjects(owner: UserPayload): Promise<ProjectData[]> {
+    const userOID = mongoose.Types.ObjectId.createFromHexString(owner._id);
 
-        const queryResult = await this.projectModel.find({
-            owner: userOID
-        }).exec()
+    const queryResult = await this.projectModel
+      .find({
+        owner: userOID,
+      })
+      .exec();
 
-        const mapped: ProjectData[] = []
-        queryResult.forEach(document => {
-            mapped.push({
-                _id: document.id,
-                name: document.name,
-                timestamp: document.timestamp.toUTCString(),
-                client: document.client,
-                apiKey: document.apiKey
-            })
-        })
+    const mapped: ProjectData[] = [];
+    queryResult.forEach((document) => {
+      mapped.push({
+        _id: document.id,
+        name: document.name,
+        timestamp: document.timestamp.toUTCString(),
+        client: document.client,
+        apiKey: document.apiKey,
+      });
+    });
 
-        return mapped
-    }
+    return mapped;
+  }
+
+  async setOpenCloud(projectId: string, token: string) {
+    const result = await this.projectModel.findByIdAndUpdate(projectId, {
+      openCloud: token,
+    });
+
+    return result;
+  }
 }
