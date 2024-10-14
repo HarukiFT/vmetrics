@@ -4,6 +4,7 @@ import { BansService } from './bans.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { BanSchema } from './schemas/bans.schema';
 import { ProjectsModule } from '../projects/projects.module';
+import { ProjectSchema } from '../projects/schemas/project.schema';
 
 @Module({
   imports: [

@@ -16,6 +16,9 @@ export class Project {
   @Prop({ type: String, required: true })
   apiKey: string;
 
+  @Prop({ type: Number })
+  universeId: number;
+
   @Prop({ type: String })
   openCloud: string;
 

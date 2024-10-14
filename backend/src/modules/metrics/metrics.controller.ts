@@ -1,4 +1,11 @@
-import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { MetricsService } from './metrics.service';
 import { ApiGuard } from '../projects/guards/api.guard';
 import { CreateMetricDto } from './dto/create-metric.dto';
@@ -7,6 +14,11 @@ import { CreateMetricsDto } from './dto/create-metrics.dto';
 @Controller('metrics')
 export class MetricsController {
   constructor(private readonly metricsService: MetricsService) {}
+
+  @Get('/redirects')
+  async getRedirects() {
+    return this.metricsService.getPortals();
+  }
 
   @Post('/create')
   @UseGuards(ApiGuard)
