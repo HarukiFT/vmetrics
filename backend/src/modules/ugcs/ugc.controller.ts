@@ -21,7 +21,7 @@ export class UgcController {
   }
 
   @Get('/get')
-  async getUgc(@Param('name') name: string) {
+  async getUgc(@Query('name') name: string) {
     return this.ugcService.getUgc(name);
   }
 }
