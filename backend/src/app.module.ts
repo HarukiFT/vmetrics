@@ -12,18 +12,31 @@ import { FormatsModule } from './modules/formats/formats.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { MetricsModule } from './modules/metrics/metrics.module';
 import { BansModule } from './modules/bans/bans.module';
+import { UgcsModule } from './modules/ugcs/ugc.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({
-    isGlobal: true,
-  }), CacheModule.register({ isGlobal: true }), MongooseModule.forRootAsync({
-    imports: [ConfigModule],
-    inject: [ConfigService],
-    useFactory: async (configService: ConfigService) => ({
-      uri: configService.get<string>('CONNECTION_STRING'),
-      dbName: 'vmetrics'
-    })
-  }), UsersModule, AuthModule, ProjectsModule, LogsModule, FormatsModule, MetricsModule, BansModule],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    CacheModule.register({ isGlobal: true }),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        uri: configService.get<string>('CONNECTION_STRING'),
+        dbName: 'vmetrics',
+      }),
+    }),
+    UsersModule,
+    AuthModule,
+    ProjectsModule,
+    LogsModule,
+    FormatsModule,
+    MetricsModule,
+    BansModule,
+    UgcsModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
