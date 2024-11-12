@@ -13,6 +13,7 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { MetricsModule } from './modules/metrics/metrics.module';
 import { BansModule } from './modules/bans/bans.module';
 import { UgcsModule } from './modules/ugcs/ugc.module';
+import { FeedbackModule } from './modules/feedback/feedback.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { UgcsModule } from './modules/ugcs/ugc.module';
     MetricsModule,
     BansModule,
     UgcsModule,
+    FeedbackModule,
   ],
   controllers: [AppController],
   providers: [AppService],
