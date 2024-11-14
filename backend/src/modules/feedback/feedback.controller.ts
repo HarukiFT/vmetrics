@@ -32,6 +32,21 @@ export class FeedbackController {
     );
   }
 
+  @Post('/counts-by-type')
+  async getFeedbackCountsByType(
+    @Body()
+    params: {
+      startDate?: Date;
+      endDate?: Date;
+    },
+  ) {
+    console.log(params);
+    return this.feedbackService.getFeedbackCountsByType(
+      params.startDate ? new Date(params.startDate) : undefined,
+      params.endDate ? new Date(params.endDate) : undefined,
+    );
+  }
+
   @Get('/counts')
   async getFeedbackCountsByDay() {
     return this.feedbackService.getFeedbackCountsByDay();

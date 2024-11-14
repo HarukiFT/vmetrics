@@ -9,4 +9,7 @@ export class CreateFeedbackDto {
 
   @IsNumber()
   rating: number;
+
+  @IsString()
+  type: string;
 }

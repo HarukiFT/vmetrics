@@ -15,9 +15,6 @@ export class Feedback {
   @Prop({ type: Number })
   rating?: number;
 
-  @Prop({ type: String, required: true })
-  summary: string;
-
   @Prop({ type: Date, required: true })
   timestamp: Date;
 }

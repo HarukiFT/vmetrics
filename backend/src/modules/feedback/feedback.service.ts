@@ -20,14 +20,12 @@ export class FeedbackService {
   async createFeedback(feedback: CreateFeedbackDto) {
     const response = await axios
       .post(aiEndpoint, {
-        content: `Ты получаешь на вход отзыв игрока об игре. Твоя задача ответ ответ в следужющем форме (полностью на русском языке):
+        content: `Ты получаешь на вход отзыв игрока об игре в роблоксе. Твоя задача как нейросети - понять, обратная связь связана как либо с игрой или игрок просто решил потроллить. Под троллингом воспринимается просто какая-та белеберда, которая вообще никак не относится к игре, в ином случае это отзыв который разработчики должны увидеть. Твоя задача ответ ответ в следужющем форме:
           {
-            "summary": "краткое содержание отзыва",
-            "rating": "если это возможно, выведи оценку игры от 1 до 5",
-            "type": "благодарность, жалоба, баг, предложение, вопрос, троллинг (одно слово)"
+            "passed": true | false (true если это отзыв об игре, будь-то пожелание, баг, жалоба и подобное, false если это троллинг ),
           }
 
-          Ответь на отзыв: ${feedback.text} (обязательно верни JSON, даже если это белеберда просто поставь тип троллинг, не выдумывай свои типы). Повторюсь, используй только русский
+          Ответь на отзыв: ${feedback.text} (обязательно верни JSON, не выдумывая свои выходные данные). Только JSON и ничего более, я это паршу.
           `,
       })
       .then((response) => {
@@ -35,18 +33,20 @@ export class FeedbackService {
       });
 
     console.log(response);
+
     const mapped = JSON.parse(response) as {
-      summary: string;
-      rating: string | null;
-      type: string;
+      passed: boolean;
     };
+
+    if (!mapped.passed) {
+      return;
+    }
 
     return this.feedbackModel.create({
       sender: feedback.sender,
       text: feedback.text,
-      summary: mapped.summary,
       rating: feedback.rating,
-      type: mapped.type,
+      type: feedback.type,
       timestamp: new Date(),
     });
   }
@@ -104,6 +104,43 @@ export class FeedbackService {
         pages: Math.ceil(total / limit),
       },
     };
+  }
+
+  async getFeedbackCountsByType(startDate?: Date, endDate?: Date) {
+    const query: any = {};
+
+    if (startDate || endDate) {
+      query.timestamp = {};
+      if (startDate) {
+        query.timestamp.$gte = startDate;
+      }
+      if (endDate) {
+        query.timestamp.$lte = endDate;
+      }
+    }
+
+    console.log(query);
+
+    const feedbackCounts = await this.feedbackModel.aggregate([
+      {
+        $match: query,
+      },
+      {
+        $group: {
+          _id: '$type',
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          type: '$_id',
+          count: 1,
+        },
+      },
+    ]);
+
+    return feedbackCounts;
   }
 
   async getFeedbackCountsByDay() {
